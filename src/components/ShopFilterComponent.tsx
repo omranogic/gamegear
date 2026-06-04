@@ -9,199 +9,198 @@ interface Product {
   slug: string;
   price?: string;
   image?: { sourceUrl: string };
+  productCategories?: {
+    nodes: Array<{
+      id: string;
+      name: string;
+      slug: string;
+    }>;
+  };
 }
 
 interface ShopFilterComponentProps {
   products: Product[];
 }
 
+// ✅ Moved outside component — stable reference
+const PRICE_RANGES = [
+  { label: "Under ₹2,500", min: 0, max: 2500 },
+  { label: "₹2,500 - ₹5,000", min: 2500, max: 5000 },
+  { label: "₹5,000 - ₹10,000", min: 5000, max: 10000 },
+  { label: "Over ₹10,000", min: 10000, max: Infinity },
+];
+
+const parsePrice = (priceStr?: string): number => {
+  if (!priceStr) return 0;
+  // Handle HTML entities like &#8377; and strip currency symbols + commas
+  const decoded = priceStr.replace(/&[^;]+;/g, "").replace(/[^\d.]/g, "");
+  const num = parseFloat(decoded);
+  return isNaN(num) ? 0 : num;
+};
+
 export default function ShopFilterComponent({ products }: ShopFilterComponentProps) {
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
-  const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [selectedPrices, setSelectedPrices] = useState<Set<string>>(new Set());
-  const [inStockOnly, setInStockOnly] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Static filter options
-  const staticCategories = ["Keyboards", "Mice", "Headsets", "Controllers", "Monitors", "Chairs"];
-  const staticBrands = ["Logitech G", "Razer", "Corsair", "SteelSeries", "HyperX"];
-  const priceRanges = [
-    { label: "Under ₹2,500", min: 0, max: 2500 },
-    { label: "₹2,500 - ₹5,000", min: 2500, max: 5000 },
-    { label: "₹5,000 - ₹10,000", min: 5000, max: 10000 },
-    { label: "Over ₹10,000", min: 10000, max: Infinity },
-  ];
+  // Extract unique categories from all products
+  const allCategories = useMemo(() => {
+    const categoryMap = new Map<string, { id: string; name: string; slug: string }>();
+    products.forEach((product) => {
+      product.productCategories?.nodes?.forEach((cat) => {
+        if (!categoryMap.has(cat.slug)) {
+          categoryMap.set(cat.slug, cat);
+        }
+      });
+    });
+    return Array.from(categoryMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [products]);
 
-  // Parse price from product
-  const parsePrice = (priceStr?: string): number => {
-    if (!priceStr) return 0;
-    const num = parseFloat(priceStr.replace(/[^0-9.-]+/g, ""));
-    return isNaN(num) ? 0 : num;
-  };
-
-  // Filter products based on selected filters
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      // Category filter (mock: just check if categories are selected)
+      // Search filter
+      if (searchTerm.trim()) {
+        if (!product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Category filter
       if (selectedCategories.size > 0) {
-        // Since we don't have actual category data, we'll skip category filtering
-        // In a real app, products would have a category field
+        const productCategorySlugs = product.productCategories?.nodes?.map((c) => c.slug) || [];
+        const hasSelectedCategory = [...selectedCategories].some((slug) =>
+          productCategorySlugs.includes(slug)
+        );
+        if (!hasSelectedCategory) return false;
       }
 
-      // Brand filter (mock: just check if brands are selected)
-      if (selectedBrands.size > 0) {
-        // Similarly, we'd check product.brand against selectedBrands
-      }
-
-      // Price range filter
+      // Price filter — now actually works
       if (selectedPrices.size > 0) {
         const price = parsePrice(product.price);
-        let inRange = false;
-
-        for (const priceLabel of selectedPrices) {
-          const range = priceRanges.find((r) => r.label === priceLabel);
-          if (range && price >= range.min && price < range.max) {
-            inRange = true;
-            break;
-          }
-        }
-
+        const inRange = [...selectedPrices].some((label) => {
+          const range = PRICE_RANGES.find((r) => r.label === label);
+          return range && price >= range.min && price < range.max;
+        });
         if (!inRange) return false;
       }
 
       return true;
     });
-  }, [products, selectedCategories, selectedBrands, selectedPrices]);
-
-  const toggleCategory = (cat: string) => {
-    setSelectedCategories((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(cat)) {
-        newSet.delete(cat);
-      } else {
-        newSet.add(cat);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleBrand = (brand: string) => {
-    setSelectedBrands((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(brand)) {
-        newSet.delete(brand);
-      } else {
-        newSet.add(brand);
-      }
-      return newSet;
-    });
-  };
+  }, [products, selectedPrices, searchTerm, selectedCategories]); // Added selectedCategories
 
   const togglePrice = (label: string) => {
     setSelectedPrices((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(label)) {
-        newSet.delete(label);
-      } else {
-        newSet.add(label);
-      }
-      return newSet;
+      const next = new Set(prev);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
     });
   };
 
+  const toggleCategory = (slug: string) => {
+    setSelectedCategories((prev) => {
+      const next = new Set(prev);
+      next.has(slug) ? next.delete(slug) : next.add(slug);
+      return next;
+    });
+  };
+
+  const clearFilters = () => {
+    setSelectedPrices(new Set());
+    setSelectedCategories(new Set());
+    setSearchTerm("");
+  };
+
+  const isFiltering = selectedPrices.size > 0 || selectedCategories.size > 0 || searchTerm.trim().length > 0;
+
   return (
     <div className="gg-shop-container">
-      {/* ─── FILTERS SIDEBAR ──────────────────────── */}
+      {/* FILTERS SIDEBAR */}
       <aside className="gg-filter-sidebar">
-        <div className="flex items-center gap-3 text-gray-400 font-medium">
-          <SlidersHorizontal size={16} />
-          <span className="text-sm uppercase tracking-wider font-semibold">Filter & Sort</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 text-gray-400 font-medium">
+            <SlidersHorizontal size={16} />
+            <span className="text-sm uppercase tracking-wider font-semibold">Filters</span>
+          </div>
+          {isFiltering && (
+            <button
+              onClick={clearFilters}
+              className="text-xs text-[#00ffc2] uppercase tracking-wider hover:underline"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {/* Search */}
+        <div className="gg-filter-box">
+          <h3 className="gg-filter-title">Search</h3>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search products..."
+            suppressHydrationWarning
+            style={{
+              width: "100%",
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "6px",
+              padding: "10px 12px",
+              color: "#fff",
+              fontSize: "13px",
+              outline: "none",
+            }}
+          />
         </div>
 
         {/* Category Filter */}
-        <div className="gg-filter-box">
-          <h3 className="gg-filter-title">Category</h3>
-          <div className="gg-filter-list">
-            {staticCategories.map((cat) => (
-              <label key={cat} className="gg-filter-item cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="gg-checkbox"
-                  checked={selectedCategories.has(cat)}
-                  onChange={() => toggleCategory(cat)}
-                  style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                />
-                <span>{cat}</span>
-              </label>
-            ))}
+        {allCategories.length > 0 && (
+          <div className="gg-filter-box">
+            <h3 className="gg-filter-title">Category</h3>
+            <div className="gg-filter-list">
+              {allCategories.map((category) => (
+                <label
+                  key={category.slug}
+                  className="gg-filter-item cursor-pointer flex items-center gap-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.has(category.slug)}
+                    onChange={() => toggleCategory(category.slug)}
+                    suppressHydrationWarning
+                    style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#00ffc2" }}
+                  />
+                  <span>{category.name}</span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Brand Filter */}
-        <div className="gg-filter-box">
-          <h3 className="gg-filter-title">Brand</h3>
-          <div className="gg-filter-list">
-            {staticBrands.map((brand) => (
-              <label key={brand} className="gg-filter-item cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="gg-checkbox"
-                  checked={selectedBrands.has(brand)}
-                  onChange={() => toggleBrand(brand)}
-                  style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                />
-                <span>{brand}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Price Filter */}
         <div className="gg-filter-box">
           <h3 className="gg-filter-title">Price Range</h3>
           <div className="gg-filter-list">
-            {priceRanges.map((range) => (
-              <label key={range.label} className="gg-filter-item cursor-pointer">
+            {PRICE_RANGES.map((range) => (
+              <label
+                key={range.label}
+                className="gg-filter-item cursor-pointer flex items-center gap-2"
+              >
                 <input
                   type="checkbox"
-                  className="gg-checkbox"
                   checked={selectedPrices.has(range.label)}
                   onChange={() => togglePrice(range.label)}
-                  style={{ cursor: "pointer", width: "16px", height: "16px" }}
+                  suppressHydrationWarning
+                  style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#00ffc2" }}
                 />
                 <span>{range.label}</span>
               </label>
             ))}
           </div>
         </div>
-
-        {/* Availability Filter */}
-        <div className="gg-filter-box">
-          <h3 className="gg-filter-title">Availability</h3>
-          <div className="gg-filter-list">
-            <label className="gg-filter-item cursor-pointer">
-              <input
-                type="checkbox"
-                className="gg-checkbox"
-                checked={inStockOnly}
-                onChange={() => setInStockOnly(!inStockOnly)}
-                style={{ cursor: "pointer", width: "16px", height: "16px" }}
-              />
-              <span>In Stock Only</span>
-            </label>
-            <label className="gg-filter-item cursor-pointer">
-              <input
-                type="checkbox"
-                className="gg-checkbox"
-                disabled
-                style={{ cursor: "not-allowed", width: "16px", height: "16px" }}
-              />
-              <span className="opacity-50">Include Out of Stock</span>
-            </label>
-          </div>
-        </div>
       </aside>
 
-      {/* ─── PRODUCTS DISPLAY ────────────────────── */}
+      {/* PRODUCTS */}
       <main className="gg-products-main">
         <div className="flex justify-between items-center border-b border-white/5 pb-4">
           <div className="text-xs text-gray-400 tracking-wider uppercase">
@@ -210,7 +209,6 @@ export default function ShopFilterComponent({ products }: ShopFilterComponentPro
           </div>
         </div>
 
-        {/* Product Grid */}
         <div className="gg-shop-grid">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
@@ -226,12 +224,10 @@ export default function ShopFilterComponent({ products }: ShopFilterComponentPro
                     <span className="text-4xl">📦</span>
                   )}
                 </div>
-
                 <div className="gg-shop-card-info">
                   <h2 className="gg-shop-card-name" title={product.name}>
                     {product.name}
                   </h2>
-
                   <div className="gg-shop-card-meta">
                     <span className="gg-shop-card-price">{product.price || "₹3,499"}</span>
                     <div className="gg-shop-card-rating">
@@ -239,14 +235,16 @@ export default function ShopFilterComponent({ products }: ShopFilterComponentPro
                       <span>4.8</span>
                     </div>
                   </div>
-
                   <span className="gg-shop-buy-btn">View Product</span>
                 </div>
               </a>
             ))
           ) : (
             <div className="col-span-3 text-center py-16 text-gray-400">
-              <p className="text-sm">No products match your filters. Try adjusting your selection.</p>
+              <p className="text-sm">No products match your filters.</p>
+              <button onClick={clearFilters} className="mt-4 text-xs text-[#00ffc2] underline">
+                Clear filters
+              </button>
             </div>
           )}
         </div>

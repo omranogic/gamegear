@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 import { Grid, ArrowUpRight, ShieldCheck } from "lucide-react";
 import ShopFilterComponent from "@/components/ShopFilterComponent";
 
-// GraphQL query to fetch active WooCommerce product items
+// GraphQL query to fetch active WooCommerce product items with categories
 const GET_SHOP_PRODUCTS = gql`
   query GetShopProducts {
     products(first: 24) {
@@ -17,6 +17,13 @@ const GET_SHOP_PRODUCTS = gql`
         image {
           sourceUrl
           altText
+        }
+        productCategories(first: 5) {
+          nodes {
+            id
+            name
+            slug
+          }
         }
       }
     }
