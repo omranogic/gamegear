@@ -25,8 +25,8 @@ interface ShopFilterComponentProps {
 // ✅ Moved outside component — stable reference
 const PRICE_RANGES = [
   { label: "Under ₹2,500", min: 0, max: 2500 },
-  { label: "₹2,500 - ₹5,000", min: 2500, max: 5000 },
-  { label: "₹5,000 - ₹10,000", min: 5000, max: 10000 },
+  { label: "₹100 - ₹1,500", min: 100, max: 150 },
+  { label: "₹150 - ₹300", min: 150, max: 300 },
   { label: "Over ₹10,000", min: 10000, max: Infinity },
 ];
 
