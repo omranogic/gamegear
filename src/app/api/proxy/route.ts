@@ -2,6 +2,52 @@ import { NextResponse } from 'next/server';
 
 const WP_GRAPHQL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || 'https://wed.usewebs.com/gamegear/backend/graphql';
 
+async function forwardToWP(body: string, cookies: string, auth: string, attempt = 1): Promise<any> {
+  const res = await fetch(WP_GRAPHQL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(auth ? { Authorization: auth } : {}),
+      ...(cookies ? { Cookie: cookies } : {}),
+    },
+    body,
+  });
+
+  const text = await res.text();
+  let jsonData: any;
+  try {
+    jsonData = JSON.parse(text || '{}');
+  } catch {
+    return { error: 'Invalid JSON from server', status: 500 };
+  }
+
+  // Check if we got an "Expired token" error
+  if (
+    jsonData.errors &&
+    Array.isArray(jsonData.errors) &&
+    jsonData.errors.some((e: any) =>
+      (e.extensions?.debugMessage || '').includes('Expired token') ||
+      (e.message || '').includes('Expired token')
+    )
+  ) {
+    console.warn('⏰ Detected expired token, retrying without session cookie...');
+
+    // Retry without the old session cookie (force fresh session)
+    if (attempt < 2) {
+      // Remove woocommerce-session from cookies and retry
+      const cleanedCookies = cookies
+        .split(';')
+        .map((c) => c.trim())
+        .filter((c) => !c.startsWith('woocommerce-session='))
+        .join('; ');
+
+      return forwardToWP(body, cleanedCookies, auth, attempt + 1);
+    }
+  }
+
+  return { jsonData, sessionHeader: res.headers.get('woocommerce-session') };
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.text();
@@ -12,31 +58,26 @@ export async function POST(req: Request) {
     // Forward Authorization header if present
     const auth = req.headers.get('authorization') || '';
 
-    const res = await fetch(WP_GRAPHQL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(auth ? { Authorization: auth } : {}),
-        ...(incomingCookies ? { Cookie: incomingCookies } : {}),
-      },
-      body,
-    });
+    const result = await forwardToWP(body, incomingCookies, auth);
 
-    const data = await res.text();
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: result.status || 500 });
+    }
+
+    const response = NextResponse.json(result.jsonData);
 
     // If WP returned a woocommerce-session header, set it as an HttpOnly cookie
-    const sessionHeader = res.headers.get('woocommerce-session');
-    const response = NextResponse.json(JSON.parse(data || '{}'));
-
-    if (sessionHeader) {
+    if (result.sessionHeader) {
       // Set cookie for 7 days
       const maxAge = 7 * 24 * 60 * 60; // seconds
-      const cookie = `woocommerce-session=${sessionHeader}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`;
+      const cookie = `woocommerce-session=${result.sessionHeader}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`;
       response.headers.set('Set-Cookie', cookie);
+      console.log('🔐 Session cookie set from WP');
     }
 
     return response;
   } catch (err) {
+    console.error('Proxy error:', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }

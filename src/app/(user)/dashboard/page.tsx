@@ -10,12 +10,16 @@ interface OrderNode {
   date: string;
   status: string;
   total: string;
+  orderNumber: string;
+  customerNote?: string;
+  notes?: string;
 }
 
 export default function DashboardPage() {
   const { isAuthenticated, loading, token, user, logout } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   
   // Real-time backend states
   const [orders, setOrders] = useState<OrderNode[]>([]);
@@ -49,9 +53,12 @@ export default function DashboardPage() {
                   orders {
                     nodes {
                       databaseId
+                      orderNumber
                       date
                       status
                       total
+                      customerNote
+                      notes
                     }
                   }
                 }
@@ -180,35 +187,86 @@ export default function DashboardPage() {
                 {ordersLoading ? (
                   <div className="text-sm font-mono text-[#00ffc2] tracking-widest py-8">Loading orders...</div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="gg-order-table">
-                      <thead>
-                        <tr>
-                          <th>Order ID</th>
-                          <th>Date</th>
-                          <th>Status</th>
-                          <th>Total Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orders.length === 0 ? (
-                          <tr>
-                            <td colSpan={4} className="text-center text-gray-500 italic py-8">
-                              You have no orders yet.
-                            </td>
-                          </tr>
-                        ) : (
-                          orders.map((order) => (
-                            <tr key={order.databaseId}>
-                              <td className="font-mono font-bold text-gray-300">#GG-{order.databaseId}</td>
-                              <td className="text-gray-400">{new Date(order.date).toLocaleDateString()}</td>
-                              <td>{formatStatus(order.status)}</td>
-                              <td className="text-[#00ffc2] font-semibold">{order.total}</td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                  <div className="space-y-2">
+                    {orders.length === 0 ? (
+                      <div className="text-center text-gray-500 italic py-8">You have no orders yet.</div>
+                    ) : (
+                      orders.map((order) => (
+                        <div key={order.databaseId} className="border border-white/5 rounded-lg overflow-hidden">
+                          {/* Order Row */}
+                          <div
+                            className="gg-order-row"
+                            onClick={() => setExpandedOrderId(expandedOrderId === order.databaseId ? null : order.databaseId)}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '16px',
+                              background: 'rgba(255,255,255,0.01)',
+                              cursor: 'pointer',
+                              borderBottom: expandedOrderId === order.databaseId ? '1px solid rgba(0,255,194,0.2)' : '1px solid rgba(255,255,255,0.05)'
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <div className="font-mono font-bold text-gray-300">#{order.orderNumber || order.databaseId}</div>
+                              <div className="text-sm text-gray-400 mt-1">{new Date(order.date).toLocaleDateString()}</div>
+                            </div>
+                            <div>{formatStatus(order.status)}</div>
+                            <div className="text-[#00ffc2] font-semibold ml-8">{order.total}</div>
+                            <div className="text-gray-400 ml-4">{expandedOrderId === order.databaseId ? '▼' : '▶'}</div>
+                          </div>
+
+                          {/* Expanded Details */}
+                          {expandedOrderId === order.databaseId && (
+                            <div style={{
+                              padding: '20px',
+                              background: 'rgba(0,255,194,0.02)',
+                              borderTop: '1px solid rgba(0,255,194,0.1)'
+                            }}>
+                              {/* Customer Notes */}
+                              {order.customerNote && (
+                                <div style={{ marginBottom: '16px' }}>
+                                  <h4 className="text-sm font-bold text-white mb-2">Your Order Notes:</h4>
+                                  <div style={{
+                                    padding: '12px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '6px',
+                                    fontSize: '13px',
+                                    color: 'rgba(255,255,255,0.7)',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    {order.customerNote}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Admin Notes */}
+                              {order.notes && (
+                                <div>
+                                  <h4 className="text-sm font-bold text-[#00ffc2] mb-2">📦 Shipping Updates:</h4>
+                                  <div style={{
+                                    padding: '12px',
+                                    background: 'rgba(0,255,194,0.05)',
+                                    border: '1px solid rgba(0,255,194,0.2)',
+                                    borderRadius: '6px',
+                                    fontSize: '13px',
+                                    color: '#00ffc2',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    {order.notes}
+                                  </div>
+                                </div>
+                              )}
+
+                              {!order.notes && !order.customerNote && (
+                                <div className="text-sm text-gray-500 italic">No notes for this order yet.</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
                   </div>
                 )}
               </div>

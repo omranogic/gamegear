@@ -42,25 +42,29 @@ export const fetchGraphQL = async (query: string, variables = {}, retryOnExpired
     method: 'POST',
     headers,
     body: JSON.stringify({ query, variables }),
-    credentials: 'include', // ensure cookies are sent
+    credentials: 'include', // ensure cookies are sent and set
   });
 
   const jsonResponse = await res.json();
 
   if (jsonResponse.errors) {
     console.error('❌ GraphQL Error:', JSON.stringify(jsonResponse.errors, null, 2));
-  }
 
-  // Let proxy handle session creation and cookies. If backend signals expired/session errors,
-  // retry once by calling endpoint again (proxy will create fresh session cookie)
-  if (
-    retryOnExpiredToken &&
-    jsonResponse.errors &&
-    Array.isArray(jsonResponse.errors) &&
-    jsonResponse.errors.some((e: any) => (e.extensions?.debugMessage || e.message || '').toLowerCase().includes('expired') || (e.message || '').toLowerCase().includes('session'))
-  ) {
-    console.warn('Session issue detected, retrying request once...');
-    return fetchGraphQL(query, variables, false);
+    // Detect expired token errors
+    const hasExpiredError = jsonResponse.errors.some((e: any) =>
+      (e.extensions?.debugMessage || '').toLowerCase().includes('expired') ||
+      (e.message || '').toLowerCase().includes('expired') ||
+      (e.message || '').toLowerCase().includes('token')
+    );
+
+    if (retryOnExpiredToken && hasExpiredError) {
+      console.warn('⏰ Expired token detected. Clearing client-side token and retrying...');
+      // Clear the client-side token fallback (server proxy will handle cookie)
+      clearSessionToken();
+      
+      // Retry once without the old token
+      return fetchGraphQL(query, variables, false);
+    }
   }
 
   return jsonResponse;
@@ -113,8 +117,8 @@ export const fetchWooCommerceCart = async () => {
   }
 };
 
-// Add item to WooCommerce cart
-export const addToWooCommerceCart = async (productId: number, quantity: number) => {
+// Add item to WooCommerce cart (with improved retry)
+export const addToWooCommerceCart = async (productId: number, quantity: number, retryCount = 0) => {
   const mutation = `
     mutation AddToCart($input: AddToCartInput!) {
       addToCart(input: $input) {
@@ -145,7 +149,7 @@ export const addToWooCommerceCart = async (productId: number, quantity: number) 
   `;
 
   try {
-    console.log(`➕ Adding ${quantity} of product ${productId} to WooCommerce cart...`);
+    console.log(`➕ Adding ${quantity} of product ${productId} to WooCommerce cart (attempt ${retryCount + 1})...`);
     const { data, errors } = await fetchGraphQL(mutation, {
       input: {
         productId,
@@ -155,8 +159,22 @@ export const addToWooCommerceCart = async (productId: number, quantity: number) 
     });
 
     if (errors) {
+      const errorMsg = errors[0]?.message || 'Failed to add item to cart';
+      const isExpiredError = errors.some((e: any) =>
+        (e.extensions?.debugMessage || '').includes('Expired') ||
+        (e.message || '').includes('Expired')
+      );
+
       console.error('❌ GraphQL Errors in addToWooCommerceCart:', JSON.stringify(errors, null, 2));
-      throw new Error(errors[0]?.message || 'Failed to add item to cart');
+
+      // If expired token and haven't retried yet, retry once more
+      if (isExpiredError && retryCount < 1) {
+        console.warn('🔄 Retrying after token expiry...');
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Brief delay before retry
+        return addToWooCommerceCart(productId, quantity, retryCount + 1);
+      }
+
+      throw new Error(errorMsg);
     }
 
     console.log('✅ Item successfully added to WooCommerce cart');
