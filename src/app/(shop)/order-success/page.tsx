@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, ShieldCheck, Terminal } from "lucide-react";
+import { CheckCircle, ShieldCheck, Package } from "lucide-react";
 import { Suspense } from "react";
 
 function SuccessDetails() {
@@ -19,7 +19,7 @@ function SuccessDetails() {
       
       <div className="gg-data-box">
         <div className="gg-data-row">
-          <span className="gg-data-label"><Terminal size={14}/> Order Number</span>
+          <span className="gg-data-label"><Package size={14}/> Order Number</span>
           <span className="gg-data-value">#GG-{orderId}</span>
         </div>
         <div className="gg-data-row">

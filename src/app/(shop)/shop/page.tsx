@@ -331,7 +331,7 @@ export default async function Shop() {
           <div className="gg-shop-banner-grid" />
           <h1 className="gg-shop-title">Gaming Gear Store</h1>
           <p className="text-sm text-gray-400 max-w-md mx-auto">
-            Esports grade weaponry optimized for tactical performance. Filter by parameters to locate your hardware fit.
+            Premium gaming peripherals optimized for performance. Filter products to find your perfect gear.
           </p>
         </section>
 
@@ -402,7 +402,7 @@ export default async function Shop() {
           <main className="gg-products-main">
             <div className="flex justify-between items-center border-b border-white/5 pb-4">
               <div className="text-xs text-gray-400 tracking-wider uppercase">
-                Showing <span className="text-[#00ffc2] font-mono">{products.length}</span> battle units
+                Showing <span className="text-[#00ffc2] font-mono">{products.length}</span> products
               </div>
               <Grid size={16} className="text-gray-500" />
             </div>
@@ -432,7 +432,7 @@ export default async function Shop() {
         </div>
 
         <span className="gg-shop-buy-btn">
-          View Hardware Matrix
+          View All Products
         </span>
       </div>
     </a>
@@ -472,7 +472,7 @@ export default async function Shop() {
             Get automated logs regarding flash inventory modifications and price point variations.
           </p>
           <div className="gg-news-input-group">
-            <input type="email" placeholder="OPERATOR@EMAIL.COM" className="gg-news-input" />
+            <input type="email" placeholder="your@email.com" className="gg-news-input" />
             <button className="gg-news-btn">Link</button>
           </div>
         </section>

@@ -344,7 +344,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
               {product?.stockStatus === "IN_STOCK" ? "System Active / In Stock" : "Depleted / Out of Stock"}
             </div>
 
-            <h1 className="gg-prod-name">{product?.name || "Tactical Command Element"}</h1>
+            <h1 className="gg-prod-name">{product?.name || "Product"}</h1>
             <div className="gg-prod-price">{product?.price || "₹0"}</div>
             <div 
               className="gg-prod-desc" 
@@ -405,7 +405,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
                       ))}
                     </div>
                     <div className="text-sm text-gray-400 font-light italic mb-3" dangerouslySetInnerHTML={{ __html: rev.content }} />
-                    <div className="text-[10px] font-bold tracking-wider text-gray-500 uppercase">— {rev.author?.node?.name || "Verified Operator"}</div>
+                    <div className="text-[10px] font-bold tracking-wider text-gray-500 uppercase">— {rev.author?.node?.name || "Verified Buyer"}</div>
                   </div>
                 ))
               ) : (

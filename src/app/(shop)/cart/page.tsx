@@ -110,7 +110,7 @@ export default function CartPage() {
               {!isAuthenticated && (
                 <div className="gg-guest-warning">
                   <AlertCircle size={16} />
-                  <div><strong>Authentication Required.</strong> You must initialize an operator identity to complete transactions.</div>
+                  <div><strong>Sign In Required.</strong> Please log in to your account to complete your purchase.</div>
                 </div>
               )}
             </div>

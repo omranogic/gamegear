@@ -295,16 +295,7 @@ export default async function ContactPage() {
 
             </div>
 
-            <div className="gg-map-wrapper">
-              <iframe 
-                src={mapUrl}
-                allowFullScreen={false} 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-              {/* Overlay to give the map a subtle brand tint without losing clarity */}
-              <div className="absolute inset-0 bg-[#00ffc2]/5 pointer-events-none mix-blend-overlay"></div>
-            </div>
+            
           </div>
 
           {/* RIGHT: CONTACT FORM */}
@@ -321,25 +312,25 @@ export default async function ContactPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="gg-input-group">
                     <label className="gg-label">Full Name</label>
-                    <input type="text" className="gg-input" required placeholder="John Doe" />
+                    <input type="text" className="gg-input" required placeholder="John Doe" suppressHydrationWarning />
                   </div>
                   <div className="gg-input-group">
                     <label className="gg-label">Email Address</label>
-                    <input type="email" className="gg-input" required placeholder="name@domain.com" />
+                    <input type="email" className="gg-input" required placeholder="name@domain.com" suppressHydrationWarning />
                   </div>
                 </div>
 
                 <div className="gg-input-group">
                   <label className="gg-label">Subject</label>
-                  <input type="text" className="gg-input" required placeholder="Order Inquiry / Product Support" />
+                  <input type="text" className="gg-input" required placeholder="Order Inquiry / Product Support" suppressHydrationWarning />
                 </div>
 
                 <div className="gg-input-group">
                   <label className="gg-label">Message</label>
-                  <textarea className="gg-input" required placeholder="How can we help you today?"></textarea>
+                  <textarea className="gg-input" required placeholder="How can we help you today?" suppressHydrationWarning></textarea>
                 </div>
 
-                <button type="button" className="gg-submit-btn">
+                <button type="button" className="gg-submit-btn" suppressHydrationWarning>
                   Send Message <Send size={18} />
                 </button>
               </form>

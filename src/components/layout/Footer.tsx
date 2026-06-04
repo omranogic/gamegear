@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Zap,  ArrowUpRight } from "lucide-react";
 import { FaXTwitter, FaYoutube, FaTwitch, FaDiscord } from "react-icons/fa6";
@@ -383,14 +385,20 @@ export function Footer() {
               Premium gaming peripherals engineered for next-level performance. Trusted by 50,000+ gamers across India.
             </p>
 
-            <div className="gg-newsletter-label">Join the squad</div>
+            <div className="gg-newsletter-label">Subscribe to Newsletter</div>
             <div className="gg-newsletter-form">
               <input
                 type="email"
                 placeholder="your@email.com"
                 className="gg-newsletter-input"
+                suppressHydrationWarning
               />
-              <button className="gg-newsletter-btn">Subscribe</button>
+              <button
+                className="gg-newsletter-btn"
+                suppressHydrationWarning
+              >
+                Subscribe
+              </button>
             </div>
 
             <div className="gg-social-row">

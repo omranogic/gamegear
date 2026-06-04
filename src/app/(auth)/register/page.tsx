@@ -34,7 +34,7 @@ export default function RegisterPage() {
     }
 
     try {
-      // Auto-generate a compatible username matrix for WordPress
+      // Generate a unique username for WordPress
       const wpUsername = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
       const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "http://localhost/graphql";
 

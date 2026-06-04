@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Package, Settings, LogOut, ShieldCheck, Zap, Terminal } from "lucide-react";
+import { LayoutDashboard, Package, Settings, LogOut, ShieldCheck, Zap } from "lucide-react";
 
 interface OrderNode {
   databaseId: number;
@@ -21,14 +21,14 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<OrderNode[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
-  // Route Guard: Eject unauthenticated operators
+  // Route guard: Redirect unauthenticated users to login
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, loading, router]);
 
-  // Telemetry Fetching Loop: Queries real-time WooCommerce statuses via token
+  // Fetch user orders from WooCommerce
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
@@ -65,7 +65,7 @@ export default function DashboardPage() {
           setOrders(data.customer.orders.nodes);
         }
       } catch (err) {
-        console.error("Failed to fetch terminal telemetry data:", err);
+        console.error("Failed to fetch user orders:", err);
       } finally {
         setOrdersLoading(false);
       }
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="text-sm text-gray-400 leading-relaxed border border-white/5 bg-white/5 p-6 rounded-xl">
-                  Welcome to your secure GameGear terminal. This interface links directly with your backend telemetry data to map acquisitions and tracking records instantly.
+                  Welcome to your GameGear account. View your order history, track shipments, and manage your preferences in one place.
                 </div>
               </div>
             )}
@@ -216,7 +216,7 @@ export default function DashboardPage() {
 
             {activeTab === "profile" && (
               <div>
-                <h1 className="gg-content-header">Operator Profile</h1>
+                <h1 className="gg-content-header">Account Settings</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-black/40 border border-white/10 p-4 rounded-lg">
                     <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2">Identifier</label>

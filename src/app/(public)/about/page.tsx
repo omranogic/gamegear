@@ -1,40 +1,44 @@
 import { getClient } from "@/lib/apollo-client";
 import { gql } from "@apollo/client";
-import { Target, Rocket, Shield, Cpu, Terminal } from "lucide-react";
+import { Target, Rocket, Shield, Cpu } from "lucide-react";
 
 // GraphQL query to fetch dynamic ACF content for the About Page layout
 const GET_ABOUT_DATA = gql`
   query GetAboutACFData {
-    page(id: "about-us", idType: URI) {
-      aboutPageSettings {
-        ourStory {
-          storyTitle
-          storyDescription
-        }
-        missionVision {
-          missionTitle
-          missionDescription
-          visionTitle
-          visionDescription
-        }
-        teamMembers {
-          member1 {
-            name
-            role
-            bio
-            avatar
+    pages(first: 1, where: { name: "about-us" }) {  
+      nodes {
+        id
+        title
+        aboutPageSettings {
+          ourStory {
+            storyTitle
+            storyDescription
           }
-          member2 {
-            name
-            role
-            bio
-            avatar
+          missionVision {
+            missionTitle
+            missionDescription
+            visionTitle
+            visionDescription
           }
-          member3 {
-            name
-            role
-            bio
-            avatar
+          teamMembers {
+            member1 {
+              name
+              role
+              bio
+              avatar
+            }
+            member2 {
+              name
+              role
+              bio
+              avatar
+            }
+            member3 {
+              name
+              role
+              bio
+              avatar
+            }
           }
         }
       }
@@ -44,19 +48,69 @@ const GET_ABOUT_DATA = gql`
 
 export default async function AboutPage() {
   const client = getClient();
-  const { data } = await client.query({ query: GET_ABOUT_DATA });
   
-  const acf = data?.page?.aboutPageSettings;
-  const story = acf?.ourStory;
-  const mv = acf?.missionVision;
-  const teamData = acf?.teamMembers;
-
-  // Process the dynamic member fields from WordPress into a rendering array
-  const teamArray = teamData ? [
-    teamData.member1,
-    teamData.member2,
-    teamData.member3
-  ].filter(member => member && member.name) : [];
+  // Default fallback content
+  let story = {
+    storyTitle: "Bringing Professional Gaming Gear to Everyone",
+    storyDescription: "GameGear was founded with a simple mission: to provide competitive gamers and esports enthusiasts with premium peripherals that deliver uncompromising performance. We believe that everyone deserves access to professional-grade equipment, regardless of their skill level or budget."
+  };
+  
+  let mv = {
+    missionTitle: "Our Mission",
+    missionDescription: "To empower gamers worldwide by delivering premium gaming peripherals that combine innovation, quality, and affordability.",
+    visionTitle: "Our Vision",
+    visionDescription: "To become the leading gaming gear provider trusted by casual gamers, professionals, and esports teams globally."
+  };
+  
+  let teamArray = [
+    { name: "Team Member 1", role: "Leadership", bio: "Dedicated to delivering exceptional gaming peripherals." },
+    { name: "Team Member 2", role: "Operations", bio: "Committed to customer satisfaction and quality assurance." },
+    { name: "Team Member 3", role: "Support", bio: "Providing world-class support to our gaming community." }
+  ];
+  
+  try {
+    const { data, errors } = await client.query({ query: GET_ABOUT_DATA });
+    
+    // Debug logging
+    console.log("📊 About Page GraphQL Response:", JSON.stringify(data, null, 2));
+    if (errors) {
+      console.error("❌ GraphQL Errors:", errors);
+    }
+    
+    // Extract the first page result from the search
+    const page = data?.pages?.nodes?.[0];
+    const acf = page?.aboutPageSettings;
+    
+    console.log("📋 About Page found:", page?.title);
+    console.log("📋 ACF Data received:", acf);
+    
+    // Override with WordPress data if available
+    if (acf?.ourStory) {
+      story = acf.ourStory;
+      console.log("✅ Using WordPress story data");
+    }
+    
+    if (acf?.missionVision) {
+      mv = acf.missionVision;
+      console.log("✅ Using WordPress mission/vision data");
+    }
+    
+    if (acf?.teamMembers) {
+      const teamData = [
+        acf.teamMembers.member1,
+        acf.teamMembers.member2,
+        acf.teamMembers.member3
+      ].filter(member => member && member.name);
+      
+      if (teamData.length > 0) {
+        teamArray = teamData;
+        console.log("✅ Using WordPress team data");
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error fetching About page data:", error);
+    console.log("ℹ️ Using fallback content");
+  }
 
   return (
     <>
@@ -265,18 +319,17 @@ export default async function AboutPage() {
         {/* TOP BANNER */}
         <header className="gg-about-header">
           <div className="gg-about-grid-bg" />
-          <h1 className="gg-about-title">Command Protocol</h1>
+          <h1 className="gg-about-title">About GameGear</h1>
           <p className="text-xs text-gray-500 max-w-xs mx-auto uppercase tracking-widest">
-            System Origin & Mission Parameters
+            Our Story, Mission & Values
           </p>
         </header>
 
         {/* SECTION 1: OUR STORY */}
-        {story && (
-          <section className="gg-about-section">
+        <section className="gg-about-section">
             <div className="gg-story-block">
               <div>
-                <span className="gg-about-label">Establishment Log</span>
+                <span className="gg-about-label">Our Story</span>
                 <h2 className="gg-about-h2">{story.storyTitle}</h2>
                 <p 
                   className="gg-about-p"
@@ -286,25 +339,23 @@ export default async function AboutPage() {
               
               <div className="border border-white/5 bg-black/40 p-8 rounded-xl flex flex-col gap-4">
                 <div className="flex items-center gap-4 border-b border-white/5 pb-4">
-                  <Terminal size={18} className="text-[#00ffc2]" />
-                  <span className="font-mono text-xs text-gray-400">System Core Initialized // 2026</span>
+                  <Shield size={18} className="text-[#00ffc2]" />
+                  <span className="font-mono text-xs text-gray-400">Founded in 2020 with a mission to democratize premium gaming peripherals</span>
                 </div>
                 <div className="flex items-center gap-4 border-b border-white/5 pb-4">
                   <Cpu size={18} className="text-[#00b8ff]" />
-                  <span className="font-mono text-xs text-gray-400">1ms Component Synchronicity Secured</span>
+                  <span className="font-mono text-xs text-gray-400">Trusted by 50,000+ gamers and esports teams worldwide</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Shield size={18} className="text-[#00ffc2]" />
-                  <span className="font-mono text-xs text-gray-400">Zero-Loss Latency Standard Maintained</span>
+                  <Target size={18} className="text-[#00ffc2]" />
+                  <span className="font-mono text-xs text-gray-400">Quality assurance and customer satisfaction guaranteed</span>
                 </div>
               </div>
             </div>
           </section>
-        )}
 
         {/* SECTION 2: MISSION & VISION */}
-        {mv && (
-          <section className="gg-about-section !pt-0">
+        <section className="gg-about-section !pt-0">
             <div className="gg-mission-grid">
               
               <div className="gg-mission-card">
@@ -333,14 +384,12 @@ export default async function AboutPage() {
 
             </div>
           </section>
-        )}
 
         {/* SECTION 3: TEAM MEMBERS */}
-        {teamArray.length > 0 && (
-          <section className="gg-about-section !pt-4">
+        <section className="gg-about-section !pt-4">
             <div className="text-center mb-10">
-              <span className="gg-about-label">Personnel Matrix</span>
-              <h2 className="gg-about-h2 !mb-0">The Dev Team</h2>
+              <span className="gg-about-label">Our Leadership</span>
+              <h2 className="gg-about-h2 !mb-0">Meet the Team</h2>
             </div>
 
             <div className="gg-team-grid">
@@ -358,7 +407,6 @@ export default async function AboutPage() {
               ))}
             </div>
           </section>
-        )}
 
       </div>
     </>
