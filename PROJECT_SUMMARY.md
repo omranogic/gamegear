@@ -1,0 +1,72 @@
+# GameGear Frontend - Quick Reference
+
+## PAGES (15 Total)
+
+**Home** `/` - Hero banner, 4 features, 3 testimonials, 8 products
+**Login** `/login` - Email/password login
+**Register** `/register` - Create new account
+**Shop** `/shop` - 24 products grid with filters
+**Product** `/product/[slug]` - Product details, specs, related items
+**Cart** `/cart` - View cart items, quantity controls
+**Checkout** `/checkout` - Billing form, Razorpay payment
+**Order Success** `/order-success` - Order confirmation
+**About** `/about` - Company story, mission, 3 team members
+**Contact** `/contact` - Email, phone, address, Google Maps
+**Dashboard** `/dashboard` - User orders (protected, login required)
+**Debug** `/debug` - Check session token & cookies
+
+---
+
+## ACF CUSTOM FIELDS (WordPress)
+
+**Home Page:**
+- Hero title, subtitle, button text, background image
+- 4 "Why Choose Us" features
+- 3 customer testimonials with ratings
+
+**Products:**
+- Brand, connectivity, RGB lighting, switch type, weight, warranty
+
+**About Page:**
+- Story title/description, mission, vision
+- 3 team members (name, role, bio, avatar)
+
+**Contact Page:**
+- Email, phone, address, Google Maps URL
+
+---
+
+## PACKAGES INSTALLED & WHY
+
+1. **@apollo/client** - Fetch data from WordPress GraphQL
+2. **graphql** - GraphQL language (Apollo dependency)
+3. **js-cookie** - Store session token in browser (7 days)
+4. **razorpay** - Payment processing at checkout
+5. **framer-motion** - Page animations
+6. **lucide-react** - Icons (cart, menu, etc)
+7. **react-icons** - More icon options
+8. **tailwindcss** - CSS styling
+9. **typescript** - Type safety
+10. **next** - React framework for web app
+
+---
+
+## SETUP STEPS (Quick)
+
+1. **Install** - Run `npm install`
+2. **Env File** - Create `.env.local` with `NEXT_PUBLIC_WORDPRESS_API_URL=https://your-site.com/graphql`
+3. **Backend Check** - WordPress needs ACF Pro + WPGraphQL + WooGraphQL plugins
+4. **Start Dev** - Run `npm run dev` → Open http://localhost:3000
+5. **Test Cart** - Add product → Cart syncs to WordPress automatically
+6. **Add Razorpay Key** - Add payment key to checkout page
+7. **Build** - Run `npm run build` for production
+8. **Deploy** - Push to GitHub, connect to Vercel for auto-deploy
+
+---
+
+## HOW IT WORKS
+
+**Cart:** Stores in browser (localStorage) + syncs to WordPress (server backup)
+**Sessions:** WooCommerce token auto-saved in cookies, sent with every request
+**Data:** Products, cart, orders fetched via GraphQL from WordPress
+**Payments:** Cart synced to WordPress → Razorpay payment → Order saved
