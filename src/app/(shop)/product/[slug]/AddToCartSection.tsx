@@ -78,47 +78,44 @@ export default function AddToCartSection({ product }: AddToCartProps) {
   };
 
   return (
-    <div className="gg-action-container">
-      <div className="gg-qty-container">
-        <button 
-          type="button" 
-          className="gg-qty-action-btn" 
-          onClick={decrement}
-          disabled={loading}
-        >
-          <Minus size={16} />
-        </button>
-        <div className="gg-qty-display-value">{quantity}</div>
-        <button 
-          type="button" 
-          className="gg-qty-action-btn" 
-          onClick={increment}
-          disabled={loading}
-        >
-          <Plus size={16} />
-        </button>
-      </div>
+   <div className="gg-action-container">
+  <div className="gg-qty-container">
+    <button 
+      type="button" 
+      className="gg-qty-action-btn" 
+      onClick={decrement}
+      disabled={loading}
+      suppressHydrationWarning        // ← add this
+    >
+      <Minus size={16} />
+    </button>
+    <div className="gg-qty-display-value">{quantity}</div>
+    <button 
+      type="button" 
+      className="gg-qty-action-btn" 
+      onClick={increment}
+      disabled={loading}
+      suppressHydrationWarning        // ← add this
+    >
+      <Plus size={16} />
+    </button>
+  </div>
 
-      <button
-        type="button"
-        className="gg-add-cart-master-btn"
-        onClick={handleAddToCart}
-        disabled={added || loading}
-      >
-        {added ? (
-          <>
-            <Check size={18} /> <span>Added</span>
-          </>
-        ) : loading ? (
-          <>
-            <ShoppingCart size={18} /> <span>Adding...</span>
-          </>
-        ) : (
-          <>
-            <ShoppingCart size={18} /> <span>Add to Cart</span>
-          </>
-        )}
-      </button>
-    </div>
+  <button
+    type="button"
+    className="gg-add-cart-master-btn"
+    onClick={handleAddToCart}
+    disabled={added || loading}
+    suppressHydrationWarning          // ← add this
+  >
+    {added ? (
+      <><Check size={18} /> <span>Added</span></>
+    ) : loading ? (
+      <><ShoppingCart size={18} /> <span>Adding...</span></>
+    ) : (
+      <><ShoppingCart size={18} /> <span>Add to Cart</span></>
+    )}
+  </button>
+</div>
   );
 }

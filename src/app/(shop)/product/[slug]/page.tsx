@@ -258,6 +258,141 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
           margin-bottom: 40px;
         }
 
+        /* ─── ADD TO CART BUTTON STYLING ──────────── */
+        .gg-action-container {
+          display: flex;
+          gap: 16px;
+          width: 100%;
+        }
+
+        .gg-qty-container {
+          display: flex;
+          align-items: center;
+          gap: 0;
+          background: rgba(0, 255, 194, 0.05);
+          border: 1.5px solid rgba(0, 255, 194, 0.2);
+          border-radius: 8px;
+          padding: 0;
+          min-width: 140px;
+        }
+
+        .gg-qty-action-btn {
+          background: transparent;
+          border: none;
+          color: #00ffc2;
+          cursor: pointer;
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .gg-qty-action-btn:hover:not(:disabled) {
+          background: rgba(0, 255, 194, 0.1);
+          color: #00ffc2;
+        }
+
+        .gg-qty-action-btn:active:not(:disabled) {
+          transform: scale(0.95);
+        }
+
+        .gg-qty-action-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .gg-qty-display-value {
+          flex: 1;
+          text-align: center;
+          font-family: 'Rajdhani', sans-serif;
+          font-weight: 700;
+          font-size: 16px;
+          color: #00ffc2;
+          letter-spacing: 0.05em;
+          padding: 12px 0;
+        }
+
+        .gg-add-cart-master-btn {
+          flex: 1.5;
+          background: linear-gradient(135deg, #00ffc2 0%, #00b8ff 100%);
+          border: none;
+          color: #04060c;
+          font-family: 'Rajdhani', sans-serif;
+          font-weight: 700;
+          font-size: 14px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 14px 24px;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 20px rgba(0, 255, 194, 0.2);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .gg-add-cart-master-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.1);
+          transition: left 0.3s ease;
+        }
+
+        .gg-add-cart-master-btn:hover:not(:disabled)::before {
+          left: 100%;
+        }
+
+        .gg-add-cart-master-btn:hover:not(:disabled) {
+          box-shadow: 0 6px 30px rgba(0, 255, 194, 0.35);
+          transform: translateY(-2px);
+        }
+
+        .gg-add-cart-master-btn:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(0, 255, 194, 0.2);
+        }
+
+        .gg-add-cart-master-btn:disabled {
+          opacity: 0.8;
+          cursor: not-allowed;
+          background: linear-gradient(135deg, #00ffc2 0%, #00b8ff 100%);
+        }
+
+        .gg-add-cart-master-btn span {
+          position: relative;
+          z-index: 1;
+        }
+
+        .gg-add-cart-master-btn svg {
+          position: relative;
+          z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+          .gg-action-container {
+            flex-direction: column;
+          }
+          
+          .gg-qty-container {
+            min-width: auto;
+          }
+          
+          .gg-add-cart-master-btn {
+            flex: 1;
+            width: 100%;
+          }
+        }
+
         /* ─── SECTION 5: REVIEWS ──────────────────── */
         .gg-reviews-panel {
           border-top: 1px solid rgba(255,255,255,0.06);
