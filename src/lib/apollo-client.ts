@@ -5,7 +5,7 @@ import { getSessionToken, setSessionToken } from "./session";
 // Custom fetch with session token handling
 export const fetchGraphQL = async (query: string, variables = {}) => {
   // Use local API proxy (no CORS issues)
-  const apiUrl = '/api/graphql';
+  const apiUrl = '/api/proxy';
 
   const headers: HeadersInit = { 'Content-Type': 'application/json' };
 
@@ -46,24 +46,15 @@ export const fetchGraphQL = async (query: string, variables = {}) => {
 
 // Custom HTTP Link that injects session token
 const createHttpLink = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql";
-  
+  const apiUrl = '/api/proxy';
+
   return new HttpLink({
     uri: apiUrl,
     credentials: 'include', // Include cookies if using them
     fetch: async (uri, options) => {
-      const token = getSessionToken();
-      
-      if (token) {
-        options!.headers = {
-          ...options!.headers,
-          'Cart-Token': token,
-        };
-      }
-
       const response = await fetch(uri, options);
 
-      // Capture and store session token from response headers
+      // Capture and store session token from response headers as a non-HttpOnly fallback
       const cartToken = response.headers.get('Cart-Token') || response.headers.get('woocommerce-session');
       if (cartToken) {
         setSessionToken(cartToken);

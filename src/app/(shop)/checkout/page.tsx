@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { getSessionToken } from "@/lib/session";
 import { fetchGraphQL, clearWooCommerceCart, addToWooCommerceCart } from "@/lib/cartService";
 import { CreditCard, Truck, ShieldCheck } from "lucide-react";
 

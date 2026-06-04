@@ -12,7 +12,7 @@ export default function DebugPage() {
     const checkToken = async () => {
       try {
         // Make a request to the proxy to see what happens
-        const res = await fetch('/api/graphql', {
+        const res = await fetch('/api/proxy', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

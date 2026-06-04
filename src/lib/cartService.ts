@@ -25,68 +25,41 @@ const CART_STORAGE_KEY = 'gg_cart_data';
 
 // Dedicated GraphQL fetcher to ensure WooCommerce Sessions & User Auth are ALWAYS sent
 export const fetchGraphQL = async (query: string, variables = {}, retryOnExpiredToken = true) => {
-  const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql";
-  
+  // Use internal proxy when called from browser so cookies are handled server-side
+  const endpoint = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql");
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
-  // 1. Include WooCommerce Session Token (Guest/Active Cart)
-  const sessionToken = getSessionToken();
-  if (sessionToken) {
-    headers['woocommerce-session'] = sessionToken;
-  }
-
-  // 2. Include User Auth Token (Saves cart permanently to WP account database)
+  // Include Authorization if available in client
   if (typeof window !== 'undefined') {
     const authToken = localStorage.getItem('gg_user_token');
-    if (authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`;
-    }
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   }
 
   const res = await fetch(endpoint, {
     method: 'POST',
     headers,
     body: JSON.stringify({ query, variables }),
+    credentials: 'include', // ensure cookies are sent
   });
-
-  const newSessionToken = res.headers.get('woocommerce-session');
-  if (newSessionToken) {
-    setSessionToken(newSessionToken);
-    console.log("🔑 New WooCommerce session token received");
-  }
 
   const jsonResponse = await res.json();
 
-  // Log GraphQL errors for debugging
   if (jsonResponse.errors) {
-    console.error("❌ GraphQL Error:", JSON.stringify(jsonResponse.errors, null, 2));
+    console.error('❌ GraphQL Error:', JSON.stringify(jsonResponse.errors, null, 2));
   }
 
-  // Handle expired token error - retry with fresh session
+  // Let proxy handle session creation and cookies. If backend signals expired/session errors,
+  // retry once by calling endpoint again (proxy will create fresh session cookie)
   if (
     retryOnExpiredToken &&
     jsonResponse.errors &&
-    jsonResponse.errors.some((error: any) => error.extensions?.debugMessage === 'Expired token')
+    Array.isArray(jsonResponse.errors) &&
+    jsonResponse.errors.some((e: any) => (e.extensions?.debugMessage || e.message || '').toLowerCase().includes('expired') || (e.message || '').toLowerCase().includes('session'))
   ) {
-    console.warn('⏰ WooCommerce session token expired, clearing and retrying with fresh session...');
-    clearSessionToken(); // Clear the expired token
-
-    // Retry without the old token (this will create a new session)
-    return fetchGraphQL(query, variables, false);
-  }
-
-  // Handle "no session" error by creating fresh session
-  if (
-    retryOnExpiredToken &&
-    jsonResponse.errors &&
-    jsonResponse.errors.some((error: any) => error.message?.includes('No session') || error.message?.includes('session'))
-  ) {
-    console.warn('⚠️ No valid WooCommerce session found, creating fresh session...');
-    clearSessionToken(); // Clear to force new session creation
-    
-    // Retry with fresh session
+    console.warn('Session issue detected, retrying request once...');
     return fetchGraphQL(query, variables, false);
   }
 
@@ -263,26 +236,47 @@ export const syncLocalStorageToWooCommerce = async () => {
   const localCart = getLocalStorageCart();
 
   console.log('Starting cart sync. Local cart items:', localCart.length);
-
-  for (const item of localCart) {
-    try {
-      console.log(`Syncing item: ${item.name} (qty: ${item.quantity})`);
-      const result = await addToWooCommerceCart(
-        parseInt(item.productId),
-        item.quantity
-      );
-
-      if (!result) {
-        console.error(`Failed to sync item: ${item.name}`);
-      } else {
-        console.log(`Successfully synced: ${item.name}`);
-      }
-    } catch (error) {
-      console.error(`Error syncing item ${item.name}:`, error);
-    }
+  if (!localCart || localCart.length === 0) {
+    console.log('No local items to sync');
+    return;
   }
 
-  console.log('Cart sync completed');
+  try {
+    console.log('Uploading guest cart to /api/cart/merge...');
+    const res = await fetch('/api/cart/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ items: localCart }),
+    });
+
+    const json = await res.json();
+    if (json?.data || json?.cart) {
+      // If merged cart returned, persist it locally
+      const merged = json.data?.cart || json.cart || json;
+      // normalize nodes if present
+      const nodes = merged?.cart?.contents?.nodes || merged?.contents?.nodes || [];
+
+      const localItems = nodes.map((node: any) => ({
+        id: node.key,
+        productId: node.product.node.databaseId.toString(),
+        name: node.product.node.name,
+        price: node.product.node.price,
+        rawPrice: parseFloat(node.product.node.price?.replace(/[^0-9.-]+/g, '')) || 0,
+        quantity: node.quantity,
+        slug: node.product.node.slug,
+        image: node.product.node.image?.sourceUrl || '',
+      }));
+
+      saveLocalStorageCart(localItems);
+      console.log('✅ Guest cart uploaded and merged, local storage updated');
+      return;
+    }
+
+    console.log('✅ Guest cart uploaded; no merged data returned');
+  } catch (error) {
+    console.error('Error uploading guest cart to backend:', error);
+  }
 };
 
 // Sync WooCommerce cart DOWN to localStorage (Run this on Login or Initial App Load)
