@@ -1,6 +1,7 @@
 import { getClient } from "@/lib/apollo-client";
 import { gql } from "@apollo/client";
-import { SlidersHorizontal, Grid, Star, ShoppingCart, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { Grid, ArrowUpRight, ShieldCheck } from "lucide-react";
+import ShopFilterComponent from "@/components/ShopFilterComponent";
 
 // GraphQL query to fetch active WooCommerce product items
 const GET_SHOP_PRODUCTS = gql`
@@ -27,9 +28,7 @@ export default async function Shop() {
   const { data } = await client.query({ query: GET_SHOP_PRODUCTS });
   const products = data?.products?.nodes || [];
 
-  // Static mock arrays for layout structure mapping
-  const staticCategories = ["Keyboards", "Mice", "Headsets", "Controllers", "Monitors", "Chairs"];
-  const staticBrands = ["Logitech G", "Razer", "Corsair", "SteelSeries", "HyperX"];
+  // Products data is passed to ShopFilterComponent
 
   return (
     <>
@@ -335,111 +334,8 @@ export default async function Shop() {
           </p>
         </section>
 
-        {/* Core Frame */}
-        <div className="gg-shop-container">
-
-          {/* ─── SECTION 2: PRODUCT FILTERS ───────────── */}
-          <aside className="gg-filter-sidebar">
-            <div className="flex items-center gap-3 text-gray-400 font-medium">
-              <SlidersHorizontal size={16} />
-              <span className="text-sm uppercase tracking-wider font-semibold">Filter & Sort</span>
-            </div>
-
-            {/* Category Filter */}
-            <div className="gg-filter-box">
-              <h3 className="gg-filter-title">Category</h3>
-              <div className="gg-filter-list">
-                {staticCategories.map((cat) => (
-                  <label key={cat} className="gg-filter-item">
-                    <div className="gg-checkbox" />
-                    {cat}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Brand Filter */}
-            <div className="gg-filter-box">
-              <h3 className="gg-filter-title">Brand</h3>
-              <div className="gg-filter-list">
-                {staticBrands.map((brand) => (
-                  <label key={brand} className="gg-filter-item">
-                    <div className="gg-checkbox" />
-                    {brand}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Filter */}
-            <div className="gg-filter-box">
-              <h3 className="gg-filter-title">Price Range</h3>
-              <div className="gg-filter-list">
-                {["Under ₹2,500", "₹2,500 - ₹5,000", "₹5,000 - ₹10,000", "Over ₹10,000"].map((range) => (
-                  <label key={range} className="gg-filter-item">
-                    <div className="gg-checkbox" />
-                    {range}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Availability Filter */}
-            <div className="gg-filter-box">
-              <h3 className="gg-filter-title">Availability</h3>
-              <div className="gg-filter-list">
-                {["In Stock Only", "Include Out of Stock"].map((status) => (
-                  <label key={status} className="gg-filter-item">
-                    <div className="gg-checkbox" />
-                    {status}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* Main Display Stack */}
-          <main className="gg-products-main">
-            <div className="flex justify-between items-center border-b border-white/5 pb-4">
-              <div className="text-xs text-gray-400 tracking-wider uppercase">
-                Showing <span className="text-[#00ffc2] font-mono">{products.length}</span> products
-              </div>
-              <Grid size={16} className="text-gray-500" />
-            </div>
-
-            {/* ─── SECTION 3: PRODUCT GRID ──────────────── */}
-            {/* Find this block inside src/app/(shop)/shop/page.tsx and update the wrapper structure */}
-<div className="gg-shop-grid">
-  {products.map((product: any) => (
-    <a key={product.id} href={`/product/${product.slug}`} className="gg-shop-card block no-underline">
-      <div className="gg-shop-img-holder">
-        {product.image?.sourceUrl ? (
-          <img src={product.image.sourceUrl} alt={product.name} />
-        ) : (
-          <span className="text-4xl">📦</span>
-        )}
-      </div>
-      
-      <div className="gg-shop-card-info">
-        <h2 className="gg-shop-card-name" title={product.name}>{product.name}</h2>
-        
-        <div className="gg-shop-card-meta">
-          <span className="gg-shop-card-price">{product.price || "₹3,499"}</span>
-          <div className="gg-shop-card-rating">
-            <Star size={12} fill="#ffb800" strokeWidth={0} />
-            <span>4.8</span>
-          </div>
-        </div>
-
-        <span className="gg-shop-buy-btn">
-          View All Products
-        </span>
-      </div>
-    </a>
-  ))}
-</div>
-          </main>
-        </div>
+        {/* Core Frame with Interactive Filters */}
+        <ShopFilterComponent products={products} />
 
         {/* ─── SECTION 4: FEATURED COLLECTION ───────── */}
         <section className="gg-featured-collection">
