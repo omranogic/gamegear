@@ -4,8 +4,8 @@ import { getSessionToken, setSessionToken } from "./session";
 
 // Custom fetch with session token handling
 export const fetchGraphQL = async (query: string, variables = {}) => {
-  // Use local API proxy (no CORS issues)
-  const apiUrl = '/api/proxy';
+  // Use local API proxy in browser; on server use WP URL directly
+  const apiUrl = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql");
 
   const headers: HeadersInit = { 'Content-Type': 'application/json' };
 
@@ -46,7 +46,7 @@ export const fetchGraphQL = async (query: string, variables = {}) => {
 
 // Custom HTTP Link that injects session token
 const createHttpLink = () => {
-  const apiUrl = '/api/proxy';
+  const apiUrl = typeof window !== 'undefined' ? '/api/proxy' : (process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql");
 
   return new HttpLink({
     uri: apiUrl,
