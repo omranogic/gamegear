@@ -428,7 +428,7 @@ export default async function Home() {
                 ) : (
                   <div className="w-full h-[450px] bg-[#0a0e1a] rounded-xl border border-dashed border-[#00ffc2]/30 flex flex-col items-center justify-center relative z-10">
                     <span className="text-6xl mb-4">🎮</span>
-                    <span className="text-[#00ffc2]/50 text-xs font-mono uppercase tracking-widest">Awaiting Transmission</span>
+                    <span className="text-[#00ffc2]/50 text-xs font-mono uppercase tracking-widest">Loading Product Image...</span>
                   </div>
                 )}
               </div>
@@ -440,7 +440,7 @@ export default async function Home() {
         <section className="gg-categories-section">
           <div className="gg-section-header">
             <div>
-              <span className="gg-section-label">Browse Department</span>
+              <span className="gg-section-label">Featured Categories</span>
               <h2 className="gg-section-title">Shop by Category</h2>
             </div>
           </div>
@@ -462,8 +462,8 @@ export default async function Home() {
         <section className="gg-products-section">
           <div className="gg-section-header">
             <div>
-              <span className="gg-section-label">Live Inventory</span>
-              <h2 className="gg-section-title">Featured Combat Gear</h2>
+              <span className="gg-section-label">Premium Selection</span>
+              <h2 className="gg-section-title">Featured Products</h2>
             </div>
             <a href="/shop" className="gg-view-all">View All →</a>
           </div>
@@ -495,7 +495,7 @@ export default async function Home() {
         <section className="gg-why-section">
           <div className="gg-why-inner">
             <div className="gg-why-header">
-              <span className="gg-section-label">Tactical Advantage</span>
+              <span className="gg-section-label">Our Advantage</span>
               <h2 className="gg-section-title">Why Choose GameGear</h2>
             </div>
 
@@ -515,7 +515,7 @@ export default async function Home() {
                   { icon: "Truck", title: "Fast Delivery", desc: "Pan-India shipping with same-day dispatch on orders placed before 2 PM." },
                   { icon: "ShieldCheck", title: "2-Year Warranty", desc: "Every product backed by a comprehensive manufacturer warranty." },
                   { icon: "Wrench", title: "Expert Support", desc: "Dedicated hardware specialists available 7 days a week." },
-                  { icon: "Trophy", title: "Pro-Grade Quality", desc: "Gear trusted by esports professionals and tournament teams." },
+                  { icon: "Trophy", title: "Enterprise-Grade Quality", desc: "Gear trusted by esports professionals and tournament teams.", },
                 ].map(({ icon, title, desc }, i) => (
                   <div key={i} className="gg-feature-card">
                     <div className="gg-feature-icon-box">{renderIcon(icon)}</div>
@@ -531,7 +531,7 @@ export default async function Home() {
         {/* ── SECTION 5: TESTIMONIALS ── */}
         <section className="gg-reviews-section">
           <div className="gg-reviews-header">
-            <span className="gg-section-label">Comrades in Arms</span>
+            <span className="gg-section-label">Customer Feedback</span>
             <h2 className="gg-section-title">Verified Reviews</h2>
           </div>
 

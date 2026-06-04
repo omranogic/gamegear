@@ -94,7 +94,7 @@ export default function DashboardPage() {
   if (loading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#04060c] text-[#00ffc2] font-mono text-sm uppercase tracking-widest">
-        Authenticating Node...
+        Authenticating...
       </div>
     );
   }
@@ -137,34 +137,34 @@ export default function DashboardPage() {
           <aside className="gg-dash-sidebar">
             <div className="gg-user-card">
               <div className="gg-user-avatar"><ShieldCheck size={28} /></div>
-              <h2 className="gg-user-name">{user?.username || "Operator"}</h2>
+              <h2 className="gg-user-name">{user?.username || "User"}</h2>
               <div className="gg-user-badge"><Zap size={10}/> Verified Account</div>
             </div>
             <nav>
               <button className={`gg-nav-btn ${activeTab === "overview" ? "active" : ""}`} onClick={() => setActiveTab("overview")}><LayoutDashboard size={16} /> Dashboard</button>
               <button className={`gg-nav-btn ${activeTab === "orders" ? "active" : ""}`} onClick={() => setActiveTab("orders")}><Package size={16} /> Order History</button>
               <button className={`gg-nav-btn ${activeTab === "profile" ? "active" : ""}`} onClick={() => setActiveTab("profile")}><Settings size={16} /> Profile Settings</button>
-              <button className="gg-nav-btn logout" onClick={logout}><LogOut size={16} /> Disconnect</button>
+              <button className="gg-nav-btn logout" onClick={logout}><LogOut size={16} /> Sign Out</button>
             </nav>
           </aside>
 
           <main className="gg-dash-content">
             {activeTab === "overview" && (
               <div>
-                <h1 className="gg-content-header">Command Center</h1>
+                <h1 className="gg-content-header">Dashboard</h1>
                 <div className="gg-stats-grid">
                   <div className="gg-stat-card">
-                    <div className="gg-stat-label">Total Deployments</div>
+                    <div className="gg-stat-label">Total Orders</div>
                     <div className="gg-stat-value">{orders.length}</div>
                   </div>
                   <div className="gg-stat-card">
-                    <div className="gg-stat-label">Active Shipped Tracks</div>
+                    <div className="gg-stat-label">Active Orders</div>
                     <div className="gg-stat-value" style={{color: '#00b8ff'}}>
                       {orders.filter(o => o.status.toUpperCase() === "PROCESSING").length}
                     </div>
                   </div>
                   <div className="gg-stat-card">
-                    <div className="gg-stat-label">System Node Status</div>
+                    <div className="gg-stat-label">Account Status</div>
                     <div className="gg-stat-value" style={{fontSize: "20px"}}>ONLINE</div>
                   </div>
                 </div>
@@ -176,25 +176,25 @@ export default function DashboardPage() {
 
             {activeTab === "orders" && (
               <div>
-                <h1 className="gg-content-header">Deployment History</h1>
+                <h1 className="gg-content-header">Order History</h1>
                 {ordersLoading ? (
-                  <div className="text-sm font-mono text-[#00ffc2] tracking-widest py-8">POLLING BACKEND SERVER...</div>
+                  <div className="text-sm font-mono text-[#00ffc2] tracking-widest py-8">Loading orders...</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="gg-order-table">
                       <thead>
                         <tr>
-                          <th>Deployment ID</th>
+                          <th>Order ID</th>
                           <th>Date</th>
-                          <th>Current Status</th>
-                          <th>Total Payload Value</th>
+                          <th>Status</th>
+                          <th>Total Amount</th>
                         </tr>
                       </thead>
                       <tbody>
                         {orders.length === 0 ? (
                           <tr>
                             <td colSpan={4} className="text-center text-gray-500 italic py-8">
-                              No data records synced to this channel.
+                              You have no orders yet.
                             </td>
                           </tr>
                         ) : (

@@ -375,7 +375,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
                   <span className="gg-spec-value">{specs?.connectivity || "Wired USB-C"}</span>
                 </div>
                 <div className="gg-spec-row">
-                  <span className="gg-spec-label">RGB Matrix</span>
+                  <span className="gg-spec-label">RGB Lighting</span>
                   <span className="gg-spec-value">{specs?.rgbLighting || "None"}</span>
                 </div>
                 <div className="gg-spec-row">
@@ -395,7 +395,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
 
             {/* SECTION 5: LIVE REVIEWS ARRAY */}
             <div className="gg-reviews-panel">
-              <h2 className="gg-specs-title">Operator Feedback ({reviews.length})</h2>
+              <h2 className="gg-specs-title">Customer Reviews ({reviews.length})</h2>
               {reviews.length > 0 ? (
                 reviews.map((rev: any) => (
                   <div key={rev.id} className="gg-review-item">
@@ -420,7 +420,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
         {relatedProducts.length > 0 && (
           <section className="gg-related-panel">
             <span className="text-xs uppercase font-bold tracking-widest text-[#00ffc2] block mb-2">Complete the Set</span>
-            <h2 className="font-['Rajdhani'] font-bold text-2xl uppercase tracking-wide">Related Armaments</h2>
+            <h2 className="font-['Rajdhani'] font-bold text-2xl uppercase tracking-wide">Related Products</h2>
             
             <div className="gg-related-grid">
               {relatedProducts.map((prod: any) => (

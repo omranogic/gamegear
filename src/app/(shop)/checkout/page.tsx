@@ -204,10 +204,10 @@ export default function CheckoutPage() {
       <div className="gg-chk-wrapper">
         <div className="gg-chk-container">
           <form onSubmit={handleOrderSubmission} className="gg-form-card">
-            <h1 className="gg-chk-header">Secure Terminal Checkout</h1>
+            <h1 className="gg-chk-header">Checkout</h1>
             {error && <div className="gg-err">{error}</div>}
 
-            <h2 className="gg-form-section-title"><Truck size={20}/> Shipping Logistics</h2>
+            <h2 className="gg-form-section-title"><Truck size={20}/> Shipping Address</h2>
             <div className="gg-grid-2">
               <div className="gg-field">
                 <label className="gg-label">First Name</label>
@@ -230,7 +230,7 @@ export default function CheckoutPage() {
                 <input type="text" required className="gg-input" value={billingData.city} onChange={e => setBillingData({...billingData, city: e.target.value})} />
               </div>
               <div className="gg-field">
-                <label className="gg-label">State Code (e.g., GJ)</label>
+                <label className="gg-label">State/Province</label>
                 <input type="text" required className="gg-input" value={billingData.state} onChange={e => setBillingData({...billingData, state: e.target.value})} />
               </div>
             </div>
@@ -241,17 +241,17 @@ export default function CheckoutPage() {
                 <input type="text" required className="gg-input" value={billingData.postcode} onChange={e => setBillingData({...billingData, postcode: e.target.value})} />
               </div>
               <div className="gg-field">
-                <label className="gg-label">Contact Phone</label>
+                <label className="gg-label">Phone Number</label>
                 <input type="tel" required className="gg-input" value={billingData.phone} onChange={e => setBillingData({...billingData, phone: e.target.value})} />
               </div>
             </div>
 
             <div className="gg-field">
-              <label className="gg-label">Secure Email Address</label>
+              <label className="gg-label">Email Address</label>
               <input type="email" required className="gg-input" value={billingData.email} onChange={e => setBillingData({...billingData, email: e.target.value})} />
             </div>
 
-            <h2 className="gg-form-section-title mt-8"><CreditCard size={20}/> Payment Protocol</h2>
+            <h2 className="gg-form-section-title mt-8"><CreditCard size={20}/> Payment Method</h2>
             
             <div 
               className={`gg-pm-box ${paymentMethod === 'razorpay' ? 'active' : ''}`}
@@ -271,20 +271,20 @@ export default function CheckoutPage() {
 
             <button type="submit" disabled={loading || cart.length === 0} className="gg-submit-btn">
               {loading 
-                ? "Processing Request..." 
+                ? "Processing..." 
                 : paymentMethod === 'razorpay' 
                   ? "Proceed to Payment" 
-                  : "Authorize Deployment"
+                  : "Place Order"
               }
             </button>
           </form>
 
           <div className="gg-side-summary">
-            <h3 className="font-['Rajdhani'] text-lg font-bold uppercase tracking-wider border-b border-white/10 pb-4 mb-4">Payload Verification</h3>
+            <h3 className="font-['Rajdhani'] text-lg font-bold uppercase tracking-wider border-b border-white/10 pb-4 mb-4">Order Summary</h3>
             {cart.map(item => (
               <div key={item.id} className="flex justify-between items-center text-sm mb-3">
                 <span className="text-gray-400 truncate max-width-[200px]">{item.name} <b className="text-[#00ffc2]">x{item.quantity}</b></span>
-                <span>Hex ₹{(item.rawPrice * item.quantity).toFixed(2)}</span>
+                <span>₹{(item.rawPrice * item.quantity).toFixed(2)}</span>
               </div>
             ))}
             <div className="border-t border-white/10 pt-4 mt-4 flex justify-between font-bold text-lg text-[#00ffc2]">

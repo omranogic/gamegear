@@ -329,7 +329,7 @@ export default async function Shop() {
         {/* ─── SECTION 1: PAGE BANNER ──────────────── */}
         <section className="gg-shop-banner">
           <div className="gg-shop-banner-grid" />
-          <h1 className="gg-shop-title">Arsenal Inventory</h1>
+          <h1 className="gg-shop-title">Gaming Gear Store</h1>
           <p className="text-sm text-gray-400 max-w-md mx-auto">
             Esports grade weaponry optimized for tactical performance. Filter by parameters to locate your hardware fit.
           </p>
@@ -342,7 +342,7 @@ export default async function Shop() {
           <aside className="gg-filter-sidebar">
             <div className="flex items-center gap-3 text-gray-400 font-medium">
               <SlidersHorizontal size={16} />
-              <span className="text-sm uppercase tracking-wider font-semibold">Filter Matrix</span>
+              <span className="text-sm uppercase tracking-wider font-semibold">Filter & Sort</span>
             </div>
 
             {/* Category Filter */}
@@ -445,7 +445,7 @@ export default async function Shop() {
         <section className="gg-featured-collection">
           <div className="gg-feat-banner">
             <div>
-              <span className="gg-section-label">Elite Integration</span>
+              <span className="gg-section-label">Featured Collections</span>
               <h2 className="font-bold text-3xl mb-4 uppercase tracking-wide font-['Rajdhani']">
                 PRO SERIES BUNDLE DROP
               </h2>

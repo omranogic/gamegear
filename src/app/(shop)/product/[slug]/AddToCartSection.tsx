@@ -40,7 +40,7 @@ export default function AddToCartSection({ product }: AddToCartProps) {
     }
 
     if (!numericId || isNaN(numericId)) {
-      alert("System Error: Product ID could not be parsed.");
+      alert("Sorry, this product cannot be added right now. Please try again.");
       setLoading(false);
       return;
     }

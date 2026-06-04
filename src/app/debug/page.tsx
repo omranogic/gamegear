@@ -47,15 +47,15 @@ export default function DebugPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <h1>🔍 Token Debug</h1>
+      <h1>Session Diagnostic</h1>
       
       <div style={{ marginBottom: '20px' }}>
-        <h2>Token Status:</h2>
-        <p>{token ? `✅ Token found: ${token.substring(0, 30)}...` : '❌ No token found'}</p>
+        <h2>Session Status:</h2>
+        <p>{token ? `Active Token: ${token.substring(0, 30)}...` : 'No Active Session Token'}</p>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <h2>API Response:</h2>
+        <h2>GraphQL API Response:</h2>
         <pre style={{ 
           background: '#f0f0f0', 
           padding: '10px', 
@@ -68,13 +68,13 @@ export default function DebugPage() {
       </div>
 
       <div>
-        <h2>Document Cookies:</h2>
+        <h2>Client Cookies:</h2>
         <pre style={{ 
           background: '#f0f0f0', 
           padding: '10px', 
           borderRadius: '4px'
         }}>
-          {cookiesStr || 'No cookies'}
+          {cookiesStr || 'No cookies present'}
         </pre>
       </div>
     </div>

@@ -124,7 +124,7 @@ export default function RegisterPage() {
               <Gamepad2 size={24} />
             </div>
             <h1 className="gg-auth-title">Create Account</h1>
-            <p className="gg-auth-subtitle">Join the GameGear community today</p>
+            <p className="gg-auth-subtitle">Create your GameGear account</p>
           </div>
 
           {error && <div className="gg-error-alert">{error}</div>}

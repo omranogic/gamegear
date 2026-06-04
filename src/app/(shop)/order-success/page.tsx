@@ -14,26 +14,26 @@ function SuccessDetails() {
       <div className="gg-suc-icon">
         <CheckCircle size={48} />
       </div>
-      <h1 className="gg-suc-title">Transaction Authorized</h1>
-      <p className="gg-suc-subtitle">Hardware generation payload processed successfully.</p>
+      <h1 className="gg-suc-title">Order Confirmed</h1>
+      <p className="gg-suc-subtitle">Your order has been confirmed and will be prepared for shipment.</p>
       
       <div className="gg-data-box">
         <div className="gg-data-row">
-          <span className="gg-data-label"><Terminal size={14}/> Secure Deployment ID</span>
+          <span className="gg-data-label"><Terminal size={14}/> Order Number</span>
           <span className="gg-data-value">#GG-{orderId}</span>
         </div>
         <div className="gg-data-row">
-          <span className="gg-data-label"><ShieldCheck size={14}/> Node Integrity</span>
+          <span className="gg-data-label"><ShieldCheck size={14}/> Order Status</span>
           <span className="gg-data-value text-[#00ffc2]">VERIFIED</span>
         </div>
       </div>
 
       <div className="flex flex-col gap-4 mt-8">
         <Link href="/dashboard" className="gg-btn-suc-primary">
-          Enter Control Dashboard
+          Go to My Orders
         </Link>
         <Link href="/shop" className="gg-btn-suc-secondary">
-          Return to Armory
+          Continue Shopping
         </Link>
       </div>
     </div>
@@ -62,7 +62,7 @@ export default function OrderSuccessPage() {
       `}</style>
       
       <div className="gg-suc-wrapper">
-        <Suspense fallback={<div className="text-sm tracking-widest text-[#00ffc2] font-mono">LOADING DATA CHANNEL...</div>}>
+        <Suspense fallback={<div className="text-sm tracking-widest text-[#00ffc2] font-mono">Loading...</div>}>
           <SuccessDetails />
         </Suspense>
       </div>

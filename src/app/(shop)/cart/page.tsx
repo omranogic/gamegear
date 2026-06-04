@@ -23,8 +23,8 @@ export default function CartPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-[#04060c] text-white px-4">
         <ShoppingCart size={48} className="text-gray-600 mb-6" />
-        <h1 className="text-2xl font-bold font-['Rajdhani'] tracking-wider mb-2">Cart is Empty</h1>
-        <p className="text-gray-400 text-sm mb-8">No gear has been staged for order processing.</p>
+        <h1 className="text-2xl font-bold font-['Rajdhani'] tracking-wider mb-2">Your Cart is Empty</h1>
+        <p className="text-gray-400 text-sm mb-8">Add items to get started.</p>
         <Link href="/shop" className="px-6 py-3 bg-[#00ffc2] text-[#04060c] font-bold rounded-lg hover:bg-[#00e6af] transition-colors uppercase tracking-widest text-sm">
           Return to Shop
         </Link>
@@ -64,7 +64,7 @@ export default function CartPage() {
       <div className="gg-cart-wrapper">
         <div className="gg-cart-container">
           <div>
-            <h1 className="gg-cart-header">Staged Hardware</h1>
+            <h1 className="gg-cart-header">Shopping Cart</h1>
             <div className="gg-cart-list">
               {cart.map((item) => (
                 <div key={item.id} className="gg-cart-item">
@@ -85,13 +85,13 @@ export default function CartPage() {
               ))}
             </div>
             <button onClick={clearCart} className="mt-8 text-xs uppercase tracking-widest text-red-400 hover:text-red-300">
-              Clear Entire Staging Area
+              Clear Cart
             </button>
           </div>
 
           <div>
             <div className="gg-summary-panel">
-              <h2 className="gg-summary-title">Summary Matrix</h2>
+              <h2 className="gg-summary-title">Order Summary</h2>
               <div className="gg-summary-row">
                 <span>Subtotal</span>
                 <span>₹{cartTotal.toFixed(2)}</span>
