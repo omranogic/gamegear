@@ -24,10 +24,10 @@ interface ShopFilterComponentProps {
 
 // ✅ Moved outside component — stable reference
 const PRICE_RANGES = [
-  { label: "Under ₹2,500", min: 0, max: 2500 },
+  { label: "Under ₹100", min: 0, max: 100 },
   { label: "₹100 - ₹1,500", min: 100, max: 150 },
   { label: "₹150 - ₹300", min: 150, max: 300 },
-  { label: "Over ₹10,000", min: 10000, max: Infinity },
+  { label: "Over ₹300", min: 300, max: Infinity },
 ];
 
 const parsePrice = (priceStr?: string): number => {
