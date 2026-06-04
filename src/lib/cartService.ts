@@ -54,9 +54,15 @@ export const fetchGraphQL = async (query: string, variables = {}, retryOnExpired
   const newSessionToken = res.headers.get('woocommerce-session');
   if (newSessionToken) {
     setSessionToken(newSessionToken);
+    console.log("🔑 New WooCommerce session token received");
   }
 
   const jsonResponse = await res.json();
+
+  // Log GraphQL errors for debugging
+  if (jsonResponse.errors) {
+    console.error("❌ GraphQL Error:", JSON.stringify(jsonResponse.errors, null, 2));
+  }
 
   // Handle expired token error - retry with fresh session
   if (
@@ -64,10 +70,23 @@ export const fetchGraphQL = async (query: string, variables = {}, retryOnExpired
     jsonResponse.errors &&
     jsonResponse.errors.some((error: any) => error.extensions?.debugMessage === 'Expired token')
   ) {
-    console.warn('Session token expired, clearing and retrying with fresh session...');
+    console.warn('⏰ WooCommerce session token expired, clearing and retrying with fresh session...');
     clearSessionToken(); // Clear the expired token
 
     // Retry without the old token (this will create a new session)
+    return fetchGraphQL(query, variables, false);
+  }
+
+  // Handle "no session" error by creating fresh session
+  if (
+    retryOnExpiredToken &&
+    jsonResponse.errors &&
+    jsonResponse.errors.some((error: any) => error.message?.includes('No session') || error.message?.includes('session'))
+  ) {
+    console.warn('⚠️ No valid WooCommerce session found, creating fresh session...');
+    clearSessionToken(); // Clear to force new session creation
+    
+    // Retry with fresh session
     return fetchGraphQL(query, variables, false);
   }
 
@@ -153,6 +172,7 @@ export const addToWooCommerceCart = async (productId: number, quantity: number) 
   `;
 
   try {
+    console.log(`➕ Adding ${quantity} of product ${productId} to WooCommerce cart...`);
     const { data, errors } = await fetchGraphQL(mutation, {
       input: {
         productId,
@@ -162,14 +182,15 @@ export const addToWooCommerceCart = async (productId: number, quantity: number) 
     });
 
     if (errors) {
-      console.error('GraphQL Errors in addToWooCommerceCart:', JSON.stringify(errors, null, 2));
-      return null;
+      console.error('❌ GraphQL Errors in addToWooCommerceCart:', JSON.stringify(errors, null, 2));
+      throw new Error(errors[0]?.message || 'Failed to add item to cart');
     }
 
+    console.log('✅ Item successfully added to WooCommerce cart');
     return data?.addToCart?.cart || null;
   } catch (error) {
-    console.error('Error adding to WooCommerce cart:', error);
-    return null;
+    console.error('❌ Error adding to WooCommerce cart:', error);
+    throw error; // Re-throw to let caller handle it
   }
 };
 
@@ -266,9 +287,17 @@ export const syncLocalStorageToWooCommerce = async () => {
 
 // Sync WooCommerce cart DOWN to localStorage (Run this on Login or Initial App Load)
 export const syncWooCommerceToLocalStorage = async () => {
+  console.log("📥 Fetching cart from WooCommerce backend...");
   const wooCart = await fetchWooCommerceCart();
 
-  if (wooCart?.contents?.nodes) {
+  if (!wooCart) {
+    console.warn("⚠️ No cart data returned from backend, keeping local cart unchanged");
+    return getLocalStorageCart(); // Return existing local cart instead of clearing
+  }
+
+  if (wooCart?.contents?.nodes && wooCart.contents.nodes.length > 0) {
+    console.log(`📦 Backend has ${wooCart.contents.nodes.length} items, syncing to local...`);
+    
     const localItems = wooCart.contents.nodes.map((node: {
       key: string;
       quantity: number;
@@ -298,12 +327,14 @@ export const syncWooCommerceToLocalStorage = async () => {
     });
 
     saveLocalStorageCart(localItems);
+    console.log("✅ Cart synced from backend:", localItems.length, "items");
     return localItems;
   }
 
-  // If WooCommerce cart is empty, clear local storage to keep them in sync
-  saveLocalStorageCart([]);
-  return [];
+  console.log("ℹ️ Backend cart is empty, keeping local cart unchanged");
+  // If WooCommerce cart is empty, DO NOT clear local storage
+  // User might still be building cart
+  return getLocalStorageCart();
 };
 
 // Clear all local cart data (Run this on Logout)

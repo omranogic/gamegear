@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { syncWooCommerceToLocalStorage } from "@/lib/cartService";
+import { syncWooCommerceToLocalStorage, syncLocalStorageToWooCommerce, clearFrontendCartData } from "@/lib/cartService";
 
 interface UserProfile {
   username: string;
@@ -39,18 +39,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (jwtToken: string, userProfile: UserProfile) => {
+    console.log("🔐 Login initiated for user:", userProfile.email);
+    
+    // Store guest cart BEFORE login (if exists)
+    const guestCart = localStorage.getItem("gg_cart_data");
+    console.log("📋 Guest cart before login:", guestCart ? "exists" : "empty");
+
+    // Save auth token and user profile
     localStorage.setItem("gg_user_token", jwtToken);
     localStorage.setItem("gg_user_profile", JSON.stringify(userProfile));
     setToken(jwtToken);
     setUser(userProfile);
     
-    // 🔄 Sync cart from WooCommerce backend after login
-    console.log("📦 User logged in, syncing cart from WooCommerce backend...");
+    // 🔄 Merge guest cart with user's existing cart from backend
+    console.log("📦 Merging guest cart with user's backend cart...");
     try {
-      await syncWooCommerceToLocalStorage();
-      console.log("✅ Cart synced from WooCommerce backend after login");
+      // 1. First, sync guest cart UP to backend (if guest had items)
+      if (guestCart) {
+        console.log("⬆️ Uploading guest cart to backend...");
+        await syncLocalStorageToWooCommerce();
+      }
+      
+      // 2. Then fetch the complete merged cart from backend
+      const mergedCart = await syncWooCommerceToLocalStorage();
+      console.log("✅ Cart merged and synced from backend:", mergedCart.length, "items");
     } catch (error) {
-      console.error("❌ Error syncing cart after login:", error);
+      console.error("❌ Error merging cart after login:", error);
       // Continue to dashboard even if sync fails
     }
     
@@ -58,8 +72,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    console.log("🚪 Logging out user...");
     localStorage.removeItem("gg_user_token");
     localStorage.removeItem("gg_user_profile");
+    
+    // 🔴 DO NOT clear guest cart data on logout
+    // Guest can continue shopping with their local cart
+    // Only clear WooCommerce session after intentional logout
+    clearFrontendCartData();
+    
     setToken(null);
     setUser(null);
     router.push("/login");

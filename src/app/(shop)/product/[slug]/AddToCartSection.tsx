@@ -29,13 +29,14 @@ export default function AddToCartSection({ product }: AddToCartProps) {
 
   const handleAddToCart = async () => {
     setLoading(true);
+    console.log(`🛒 Adding ${quantity} x ${product.name} to cart...`);
 
     // Parse product ID
     let numericId;
     try {
       const decoded = atob(product.id);
       numericId = parseInt(decoded.split(':')[1]);
-    } catch {  // Error decoding ID, using fallback
+    } catch {
       numericId = parseInt(product.databaseId);
     }
 
@@ -46,14 +47,17 @@ export default function AddToCartSection({ product }: AddToCartProps) {
     }
 
     try {
-      // Add to WooCommerce cart (includes session token handling)
+      // Add to WooCommerce cart (includes session token handling with retry)
       const wooResult = await addToWooCommerceCart(numericId, quantity);
 
       if (!wooResult) {
-        alert("Failed to add to cart. Please try again.");
+        console.error("❌ WooCommerce cart operation returned null/undefined");
+        alert("Failed to add to cart. Your session may have expired. Please refresh and try again.");
         setLoading(false);
         return;
       }
+
+      console.log("✅ Item added to WooCommerce cart");
 
       // Update local cart state for immediate UI feedback
       const rawPrice = parseFloat(product.price?.replace(/[^0-9.-]+/g, "")) || 0;
@@ -69,9 +73,16 @@ export default function AddToCartSection({ product }: AddToCartProps) {
 
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      alert("Connection failed. Please try again.");
+    } catch (err: any) {
+      console.error("❌ Error adding to cart:", err);
+      
+      if (err.message?.includes("session")) {
+        alert("Session expired. Please refresh the page and try again.");
+      } else if (err.message?.includes("stock")) {
+        alert("This item is out of stock or quantity unavailable.");
+      } else {
+        alert("Failed to add to cart. Please check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -38,26 +38,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (savedCart) {
         try {
           setCart(JSON.parse(savedCart));
+          console.log("📦 Cart loaded from localStorage");
         } catch {
           // Error parsing cart data, starting with empty cart
         }
       }
       
-      // Check if user is authenticated
-      const userToken = localStorage.getItem("gg_user_token");
-      if (userToken) {
-        // If user is logged in, sync cart from WooCommerce backend
-        console.log("🔄 User authenticated on load, syncing cart from WooCommerce backend...");
-        try {
-          const syncedCart = await syncWooCommerceToLocalStorage();
-          setCart(syncedCart);
-          console.log("✅ Cart synced from backend:", syncedCart.length, "items");
-        } catch (error) {
-          console.error("❌ Error syncing cart from backend:", error);
-          // Keep local cart if sync fails
-        }
-      }
-      
+      // 🔴 DO NOT auto-sync on app load
+      // Let login() handle cart sync to avoid clearing guest cart
+      // Only restore from localStorage
       setIsInitialized(true);
     };
     

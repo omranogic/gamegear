@@ -36,7 +36,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login?redirect=/checkout");
+      return;
     }
+    
+    // Sync cart from backend on checkout page load to ensure fresh data
+    console.log("🔄 Syncing cart on checkout page load...");
   }, [isAuthenticated, router]);
 
   // Synchronize local React cart with the WooCommerce backend cart
