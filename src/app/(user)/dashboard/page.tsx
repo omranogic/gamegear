@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { LayoutDashboard, Package, Settings, LogOut, ShieldCheck, Zap } from "lucide-react";
 
@@ -32,54 +33,96 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, loading, router]);
 
-  // Fetch user orders from WooCommerce
+  // Fetch user orders from WooCommerce via proxy
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
     const fetchUserOrders = async () => {
       setOrdersLoading(true);
       try {
-        const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "http://localhost/graphql";
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            query: `
-              query GetCustomerOrders {
-                customer {
-                  orders {
-                    nodes {
-                      databaseId
-                      orderNumber
-                      date
-                      status
-                      total
-                      customerNote
-                      notes
-                    }
-                  }
+        // Use proxy endpoint like other API calls
+        const endpoint = '/api/proxy';
+        const query = `
+          query GetCustomerOrders {
+            customer {
+              orders(first: 50) {
+                nodes {
+                  databaseId
+                  orderNumber
+                  date
+                  status
+                  total
+                  customerNote
                 }
               }
-            `
-          })
+            }
+          }
+        `;
+
+        console.log('📦 Fetching customer orders from proxy...');
+        console.log('Token:', token ? `${token.substring(0, 20)}...` : 'MISSING');
+        console.log('Using endpoint:', endpoint);
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include', // CRITICAL: Include HttpOnly cookies set by proxy
+          body: JSON.stringify({ query }),
         });
 
-        const { data } = await res.json();
-        if (data?.customer?.orders?.nodes) {
-          setOrders(data.customer.orders.nodes);
+        console.log('✅ Response status:', res.status);
+        
+        // Log response headers to check if session cookie is present
+        const setCookieHeader = res.headers.get('set-cookie');
+        console.log('🔐 Set-Cookie header:', setCookieHeader ? 'YES' : 'NO');
+
+        const response = await res.json();
+        
+        console.log('📊 Response data:', {
+          hasErrors: !!response.errors,
+          hasData: !!response.data,
+          customer: response.data?.customer ? 'EXISTS' : 'MISSING',
+          orders: response.data?.customer?.orders ? `${response.data.customer.orders.nodes?.length || 0} orders` : 'NO ORDERS FIELD',
+        });
+
+        if (response.errors) {
+          console.error('❌ GraphQL Errors:', response.errors);
+          console.log('ℹ️ Trying guest session fallback...');
+          
+          // Try without auth to see if guest cart works
+          const guestRes = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ query: `query { viewer { id } }` }),
+          });
+          
+          const guestData = await guestRes.json();
+          console.log('Guest session test:', guestData);
+          return;
+        }
+
+        if (response.data?.customer?.orders?.nodes) {
+          console.log('✅ Orders fetched:', response.data.customer.orders.nodes.length);
+          setOrders(response.data.customer.orders.nodes);
+        } else {
+          console.warn('⚠️ No orders data in response. Full response:', response);
+          setOrders([]);
         }
       } catch (err) {
-        console.error("Failed to fetch user orders:", err);
+        console.error('❌ Failed to fetch user orders:', err);
       } finally {
         setOrdersLoading(false);
       }
     };
 
     fetchUserOrders();
-  }, [isAuthenticated, token, activeTab]);
+  }, [isAuthenticated, token]);
 
   // Dynamic Status Parser: Transforms database strings into design layout tokens
   const formatStatus = (rawStatus: string) => {
@@ -187,12 +230,19 @@ export default function DashboardPage() {
                 {ordersLoading ? (
                   <div className="text-sm font-mono text-[#00ffc2] tracking-widest py-8">Loading orders...</div>
                 ) : (
-                  <div className="space-y-2">
+                  <div>
                     {orders.length === 0 ? (
-                      <div className="text-center text-gray-500 italic py-8">You have no orders yet.</div>
+                      <div className="text-center py-16 bg-rgba(255,255,255,0.02) border border-white/5 rounded-lg">
+                        <p className="text-gray-400 mb-2">No orders found</p>
+                        <p className="text-xs text-gray-500">Check the browser console for debugging info</p>
+                        <Link href="/shop" className="inline-block mt-4 px-4 py-2 bg-[#00ffc2] text-black rounded text-sm font-bold">
+                          Continue Shopping
+                        </Link>
+                      </div>
                     ) : (
-                      orders.map((order) => (
-                        <div key={order.databaseId} className="border border-white/5 rounded-lg overflow-hidden">
+                      <div className="space-y-2">
+                        {orders.map((order) => (
+                          <div key={order.databaseId} className="border border-white/5 rounded-lg overflow-hidden">
                           {/* Order Row */}
                           <div
                             className="gg-order-row"
@@ -264,8 +314,9 @@ export default function DashboardPage() {
                               )}
                             </div>
                           )}
-                        </div>
-                      ))
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 )}

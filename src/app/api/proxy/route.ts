@@ -45,7 +45,18 @@ async function forwardToWP(body: string, cookies: string, auth: string, attempt 
     }
   }
 
-  return { jsonData, sessionHeader: res.headers.get('woocommerce-session') };
+  // Capture all Set-Cookie headers from WP response
+  const setCookieHeaders = res.headers.getSetCookie?.() || [];
+  const sessionHeader = res.headers.get('woocommerce-session');
+  
+  console.log('📡 WP Response:', {
+    status: res.status,
+    hasSetCookieHeader: setCookieHeaders.length > 0,
+    hasSessionHeader: !!sessionHeader,
+    setCookies: setCookieHeaders.map(c => c.split(';')[0].split('=')[0]),
+  });
+
+  return { jsonData, sessionHeader, setCookieHeaders };
 }
 
 export async function POST(req: Request) {
@@ -68,11 +79,28 @@ export async function POST(req: Request) {
 
     // If WP returned a woocommerce-session header, set it as an HttpOnly cookie
     if (result.sessionHeader) {
-      // Set cookie for 7 days
+      // Set cookie for 7 days, accessible across the domain
       const maxAge = 7 * 24 * 60 * 60; // seconds
+      
+      // For production (Vercel), don't restrict to subdomain - let browser handle it
       const cookie = `woocommerce-session=${result.sessionHeader}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`;
+      
       response.headers.set('Set-Cookie', cookie);
-      console.log('🔐 Session cookie set from WP');
+      console.log('🔐 Session cookie set from WP:', {
+        hasSession: !!result.sessionHeader,
+        cookieLength: result.sessionHeader?.length,
+      });
+    }
+
+    // Also forward any other Set-Cookie headers from WordPress
+    if (result.setCookieHeaders && result.setCookieHeaders.length > 0) {
+      result.setCookieHeaders.forEach((setCookie: string) => {
+        // Only forward non-session cookies to avoid conflicts
+        if (!setCookie.includes('woocommerce-session')) {
+          response.headers.append('Set-Cookie', setCookie);
+          console.log('📌 Forwarded Set-Cookie:', setCookie.split(';')[0].split('=')[0]);
+        }
+      });
     }
 
     return response;
