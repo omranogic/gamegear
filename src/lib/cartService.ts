@@ -23,7 +23,7 @@ export interface WooCartItem {
 const CART_STORAGE_KEY = 'gg_cart_data';
 
 // Dedicated GraphQL fetcher to ensure WooCommerce Sessions & User Auth are ALWAYS sent
-export const fetchGraphQL = async (query: string, variables = {}) => {
+export const fetchGraphQL = async (query: string, variables = {}, retryOnExpiredToken = true) => {
   const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "https://wed.usewebs.com/gamegear/backend/graphql";
   
   const headers: Record<string, string> = {
@@ -55,7 +55,22 @@ export const fetchGraphQL = async (query: string, variables = {}) => {
     setSessionToken(newSessionToken);
   }
 
-  return res.json();
+  const jsonResponse = await res.json();
+
+  // Handle expired token error - retry with fresh session
+  if (
+    retryOnExpiredToken &&
+    jsonResponse.errors &&
+    jsonResponse.errors.some((error: any) => error.extensions?.debugMessage === 'Expired token')
+  ) {
+    console.warn('Session token expired, clearing and retrying with fresh session...');
+    clearSessionToken(); // Clear the expired token
+
+    // Retry without the old token (this will create a new session)
+    return fetchGraphQL(query, variables, false);
+  }
+
+  return jsonResponse;
 };
 
 // Fetch cart from WooCommerce
