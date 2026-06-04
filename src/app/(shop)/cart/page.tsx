@@ -58,7 +58,32 @@ export default function CartPage() {
         .gg-checkout-btn:hover { background: #00e6af; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,255,194,0.2); }
         .gg-guest-warning { display: flex; gap: 12px; background: rgba(0,184,255,0.1); border: 1px solid rgba(0,184,255,0.2); padding: 16px; border-radius: 8px; margin-top: 24px; font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.5; }
         .gg-guest-warning svg { color: #00b8ff; flex-shrink: 0; }
-        @media (max-width: 900px) { .gg-cart-container { grid-template-columns: 1fr; } .gg-cart-item { grid-template-columns: 80px 1fr auto; } .gg-remove-btn { grid-column: 3; } }
+        @media (max-width: 900px) {
+          .gg-cart-container { grid-template-columns: 1fr; }
+          .gg-cart-item { grid-template-columns: 80px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+          .gg-remove-btn { justify-self: end; }
+          .gg-summary-panel { position: static; top: auto; }
+        }
+        @media (max-width: 680px) {
+          .gg-cart-wrapper { padding: 32px 16px; }
+          .gg-cart-item { grid-template-columns: 72px minmax(0, 1fr); }
+          .gg-item-img { width: 72px; height: 72px; }
+          .gg-item-title { font-size: 14px; }
+          .gg-item-price { font-size: 13px; }
+          .gg-qty-box { width: 100%; justify-content: space-between; }
+          .gg-qty-val { width: 36px; font-size: 13px; }
+          .gg-summary-panel { padding: 24px; margin-top: 24px; }
+        }
+        @media (max-width: 480px) {
+          .gg-cart-wrapper { padding: 24px 12px; }
+          .gg-cart-header { font-size: 24px; }
+          .gg-cart-item { grid-template-columns: 68px minmax(0, 1fr); }
+          .gg-item-img { width: 68px; height: 68px; }
+          .gg-qty-btn { width: 28px; height: 28px; }
+          .gg-checkout-btn { padding: 14px; font-size: 13px; }
+          .gg-summary-row, .gg-summary-total { font-size: 13px; }
+          .gg-summary-panel { border-radius: 12px; }
+        }
       `}</style>
 
       <div className="gg-cart-wrapper">

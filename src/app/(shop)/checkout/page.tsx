@@ -199,6 +199,32 @@ export default function CheckoutPage() {
         .gg-submit-btn:hover { background: #00e6af; box-shadow: 0 4px 16px rgba(0,255,194,0.2); }
         .gg-submit-btn:disabled { background: #444; color: #888; cursor: not-allowed; box-shadow: none; }
         .gg-err { background: rgba(255,59,107,0.1); border: 1px solid rgba(255,59,107,0.2); color: #ff3b6b; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: center; }
+        @media (max-width: 980px) {
+          .gg-chk-container { grid-template-columns: 1fr; gap: 24px; }
+          .gg-chk-header { font-size: 28px; }
+          .gg-form-card, .gg-side-summary { width: 100%; }
+        }
+        @media (max-width: 700px) {
+          .gg-chk-wrapper { padding: 32px 16px 60px; }
+          .gg-form-card { padding: 24px; }
+          .gg-side-summary { padding: 20px; }
+          .gg-form-section-title { font-size: 18px; gap: 8px; margin-bottom: 18px; }
+          .gg-grid-2 { grid-template-columns: 1fr; gap: 16px; }
+          .gg-input { font-size: 13px; padding: 12px; }
+          .gg-pm-box { flex-direction: column; align-items: stretch; gap: 10px; }
+          .gg-pm-box input { width: 24px; }
+          .gg-submit-btn { padding: 14px; font-size: 13px; }
+        }
+        @media (max-width: 480px) {
+          .gg-chk-wrapper { padding: 24px 12px 50px; }
+          .gg-chk-header { font-size: 24px; }
+          .gg-form-card { padding: 20px; }
+          .gg-side-summary { padding: 18px; }
+          .gg-label { font-size: 10px; }
+          .gg-input { font-size: 13px; padding: 10px; }
+          .gg-pm-box { padding: 14px; font-size: 13px; }
+          .gg-submit-btn { padding: 14px; font-size: 13px; }
+        }
       `}</style>
 
       <div className="gg-chk-wrapper">

@@ -295,14 +295,35 @@ export function Header() {
           border-top: 1px solid rgba(255,255,255,0.07);
         }
 
+        @media (max-width: 1024px) {
+          .gg-header-inner { padding: 0 20px; }
+        }
+
         @media (max-width: 900px) {
           .gg-nav { display: none; }
           .gg-cta { display: none; }
           .gg-hamburger { display: flex; }
+          .gg-actions { gap: 6px; }
+          .gg-header-inner { justify-content: space-between; }
+        }
+
+        @media (max-width: 680px) {
+          .gg-header-inner { padding: 0 16px; }
+          .gg-logo-text { font-size: 18px; }
+          .gg-logo-sub { font-size: 7px; }
+          .gg-icon-btn { width: 36px; height: 36px; }
+          .gg-cart-badge { top: -6px; right: -6px; width: 16px; height: 16px; font-size: 8px; }
+          .gg-hamburger { width: 36px; height: 36px; }
         }
 
         @media (max-width: 480px) {
-          .gg-header-inner { padding: 0 16px; }
+          .gg-header-inner { padding: 0 12px; height: auto; flex-wrap: wrap; gap: 12px; }
+          .gg-logo { gap: 8px; }
+          .gg-logo-text { font-size: 16px; }
+          .gg-mobile-nav { padding: 24px 16px; inset: 68px 0 0 0; }
+          .gg-mobile-link { font-size: 15px; padding: 14px 18px; }
+          .gg-mobile-actions { gap: 10px; flex-wrap: wrap; }
+          .gg-hamburger { width: 36px; height: 36px; }
         }
       `}</style>
 

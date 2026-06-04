@@ -356,6 +356,22 @@ export function Footer() {
             gap: 12px;
           }
         }
+
+        @media (max-width: 480px) {
+          .gg-footer-main {
+            padding: 32px 12px 24px;
+            gap: 24px;
+          }
+          .gg-footer-logo-text { font-size: 18px; }
+          .gg-footer-tagline { max-width: 100%; font-size: 12px; }
+          .gg-newsletter-form { flex-direction: column; }
+          .gg-newsletter-btn { width: 100%; }
+          .gg-social-row { gap: 6px; flex-wrap: wrap; }
+          .gg-footer-bottom { padding: 16px 12px; }
+          .gg-footer-bottom-right { gap: 12px; flex-wrap: wrap; }
+          .gg-footer-legal-link { font-size: 11px; }
+          .gg-payment-row { justify-content: flex-start; }
+        }
       `}</style>
 
       <footer className="gg-footer">

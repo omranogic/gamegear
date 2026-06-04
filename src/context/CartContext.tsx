@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { syncWooCommerceToLocalStorage } from "@/lib/cartService";
 
 export interface CartItem {
   id: string;
@@ -20,6 +21,7 @@ interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  syncCartFromServer: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -30,15 +32,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Load existing cart from local storage on initial mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("gg_cart_data");
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch {  // Error parsing cart data, starting with empty cart
-        // Ignore error and start with empty cart
+    const initializeCart = async () => {
+      const savedCart = localStorage.getItem("gg_cart_data");
+      
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+        } catch {
+          // Error parsing cart data, starting with empty cart
+        }
       }
-    }
-    setIsInitialized(true);
+      
+      // Check if user is authenticated
+      const userToken = localStorage.getItem("gg_user_token");
+      if (userToken) {
+        // If user is logged in, sync cart from WooCommerce backend
+        console.log("🔄 User authenticated on load, syncing cart from WooCommerce backend...");
+        try {
+          const syncedCart = await syncWooCommerceToLocalStorage();
+          setCart(syncedCart);
+          console.log("✅ Cart synced from backend:", syncedCart.length, "items");
+        } catch (error) {
+          console.error("❌ Error syncing cart from backend:", error);
+          // Keep local cart if sync fails
+        }
+      }
+      
+      setIsInitialized(true);
+    };
+    
+    initializeCart();
   }, []);
 
   // Save cart to local storage whenever it changes
@@ -78,6 +101,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([]);
 
+  const syncCartFromServer = async () => {
+    console.log("🔄 Syncing cart from WooCommerce backend...");
+    try {
+      const syncedCart = await syncWooCommerceToLocalStorage();
+      setCart(syncedCart);
+      console.log("✅ Cart synced successfully:", syncedCart.length, "items");
+    } catch (error) {
+      console.error("❌ Error syncing cart from server:", error);
+    }
+  };
+
   const cartTotal = cart.reduce((total, item) => total + item.rawPrice * item.quantity, 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
@@ -91,6 +125,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         cartTotal,
         cartCount,
+        syncCartFromServer,
       }}
     >
       {children}

@@ -441,6 +441,238 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
           .gg-related-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+        @media (max-width: 768px) {
+          .gg-product-page {
+            padding: 24px 16px 80px;
+          }
+
+          .gg-details-container {
+            gap: 32px;
+          }
+
+          .gg-prod-name {
+            font-size: clamp(20px, 3vw, 32px);
+          }
+
+          .gg-prod-price {
+            font-size: 24px;
+          }
+
+          .gg-thumb-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+
+          .gg-specs-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .gg-related-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+          }
+
+          .gg-action-container {
+            gap: 12px;
+          }
+
+          .gg-qty-container {
+            min-width: 120px;
+          }
+
+          .gg-qty-action-btn {
+            padding: 10px 14px;
+          }
+
+          .gg-qty-display-value {
+            font-size: 14px;
+            padding: 10px 0;
+          }
+
+          .gg-add-cart-master-btn {
+            padding: 12px 20px;
+            font-size: 13px;
+            gap: 8px;
+          }
+
+          .gg-add-cart-master-btn svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .gg-product-page {
+            padding: 20px 12px 60px;
+          }
+
+          .gg-details-container {
+            gap: 24px;
+          }
+
+          .gg-main-img-wrap {
+            padding: 24px;
+          }
+
+          .gg-prod-name {
+            font-size: clamp(18px, 2.5vw, 26px);
+            margin-bottom: 8px;
+          }
+
+          .gg-prod-price {
+            font-size: 20px;
+            margin-bottom: 16px;
+          }
+
+          .gg-prod-desc {
+            font-size: 13px;
+            margin-bottom: 20px;
+          }
+
+          .gg-stock-badge {
+            font-size: 9px;
+            padding: 3px 10px;
+            margin-bottom: 12px;
+          }
+
+          .gg-thumb-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+          }
+
+          .gg-thumb-card {
+            padding: 6px;
+          }
+
+          /* ─── MOBILE BUTTON RESPONSIVENESS ──────── */
+          .gg-action-container {
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+          }
+
+          .gg-qty-container {
+            min-width: auto;
+            width: 100%;
+          }
+
+          .gg-qty-action-btn {
+            padding: 12px 12px;
+            font-size: 12px;
+          }
+
+          .gg-qty-display-value {
+            font-size: 13px;
+            padding: 12px 0;
+          }
+
+          .gg-add-cart-master-btn {
+            flex: 1;
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            gap: 6px;
+          }
+
+          .gg-add-cart-master-btn svg {
+            width: 14px;
+            height: 14px;
+          }
+
+          /* Better touch targets */
+          .gg-add-cart-master-btn:active:not(:disabled) {
+            transform: scale(0.98);
+          }
+
+          .gg-qty-action-btn:active:not(:disabled) {
+            transform: scale(0.92);
+          }
+
+          .gg-specs-matrix {
+            padding-top: 20px;
+            margin-bottom: 24px;
+          }
+
+          .gg-specs-title {
+            font-size: 12px;
+            margin-bottom: 14px;
+          }
+
+          .gg-specs-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          .gg-spec-row {
+            padding: 12px 14px;
+            font-size: 12px;
+          }
+
+          .gg-reviews-panel {
+            padding-top: 20px;
+            margin-top: 16px;
+          }
+
+          .gg-review-item {
+            padding: 16px;
+            margin-bottom: 12px;
+          }
+
+          .gg-related-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          .gg-related-panel {
+            margin: 40px auto 0;
+          }
+
+          .gg-related-card {
+            padding: 12px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .gg-product-page {
+            padding: 16px 10px 50px;
+          }
+
+          .gg-prod-name {
+            font-size: 18px;
+          }
+
+          .gg-prod-price {
+            font-size: 18px;
+          }
+
+          .gg-thumb-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+
+          .gg-action-container {
+            gap: 8px;
+          }
+
+          .gg-add-cart-master-btn {
+            padding: 12px 12px;
+            font-size: 11px;
+          }
+
+          .gg-qty-action-btn {
+            padding: 10px 10px;
+          }
+
+          .gg-specs-grid {
+            gap: 8px;
+          }
+
+          .gg-spec-row {
+            padding: 10px 12px;
+            font-size: 11px;
+          }
+        }
+
         @media (max-width: 600px) {
           .gg-specs-grid, .gg-related-grid { grid-template-columns: 1fr; }
           .gg-cart-action-box { flex-direction: column; }

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { syncWooCommerceToLocalStorage } from "@/lib/cartService";
 
 interface UserProfile {
   username: string;
@@ -37,11 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (jwtToken: string, userProfile: UserProfile) => {
+  const login = async (jwtToken: string, userProfile: UserProfile) => {
     localStorage.setItem("gg_user_token", jwtToken);
     localStorage.setItem("gg_user_profile", JSON.stringify(userProfile));
     setToken(jwtToken);
     setUser(userProfile);
+    
+    // 🔄 Sync cart from WooCommerce backend after login
+    console.log("📦 User logged in, syncing cart from WooCommerce backend...");
+    try {
+      await syncWooCommerceToLocalStorage();
+      console.log("✅ Cart synced from WooCommerce backend after login");
+    } catch (error) {
+      console.error("❌ Error syncing cart after login:", error);
+      // Continue to dashboard even if sync fails
+    }
+    
     router.push("/dashboard");
   };
 

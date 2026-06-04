@@ -5,6 +5,7 @@ export interface CartItem {
   productId: string;
   name: string;
   price: string;
+  rawPrice: number;
   quantity: number;
   slug: string;
   image?: string;
@@ -268,7 +269,7 @@ export const syncWooCommerceToLocalStorage = async () => {
   const wooCart = await fetchWooCommerceCart();
 
   if (wooCart?.contents?.nodes) {
-    const localItems: CartItem[] = wooCart.contents.nodes.map((node: {
+    const localItems = wooCart.contents.nodes.map((node: {
       key: string;
       quantity: number;
       product: {
@@ -280,15 +281,21 @@ export const syncWooCommerceToLocalStorage = async () => {
           image?: { sourceUrl: string };
         };
       };
-    }) => ({
-      id: node.key,
-      productId: node.product.node.databaseId.toString(),
-      name: node.product.node.name,
-      price: node.product.node.price,
-      quantity: node.quantity,
-      slug: node.product.node.slug,
-      image: node.product.node.image?.sourceUrl || '',
-    }));
+    }) => {
+      // Parse price string to get numeric value (e.g., "₹1,299" → 1299)
+      const rawPrice = parseFloat(node.product.node.price?.replace(/[^0-9.-]+/g, "")) || 0;
+      
+      return {
+        id: node.key,
+        productId: node.product.node.databaseId.toString(),
+        name: node.product.node.name,
+        price: node.product.node.price,
+        rawPrice: rawPrice,
+        quantity: node.quantity,
+        slug: node.product.node.slug,
+        image: node.product.node.image?.sourceUrl || '',
+      };
+    });
 
     saveLocalStorageCart(localItems);
     return localItems;

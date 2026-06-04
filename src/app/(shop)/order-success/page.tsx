@@ -59,6 +59,24 @@ export default function OrderSuccessPage() {
         .gg-btn-suc-primary:hover { background: #00e6af; transform: translateY(-1px); }
         .gg-btn-suc-secondary { display: block; width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); text-align: center; padding: 14px; font-size: 14px; font-weight: 700; text-transform: uppercase; border-radius: 8px; transition: all 0.2s; text-decoration: none; }
         .gg-btn-suc-secondary:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+        .gg-data-value { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #fff; }
+        @media (max-width: 768px) {
+          .gg-suc-wrapper { padding: 32px 18px; }
+          .gg-suc-card { padding: 36px 28px; }
+          .gg-suc-title { font-size: 28px; }
+          .gg-suc-subtitle { font-size: 13px; }
+          .gg-data-box { padding: 18px; }
+          .gg-data-row { font-size: 13px; gap: 8px; }
+          .gg-btn-suc-primary, .gg-btn-suc-secondary { padding: 13px; font-size: 13px; }
+        }
+        @media (max-width: 480px) {
+          .gg-suc-wrapper { padding: 24px 12px; }
+          .gg-suc-card { padding: 28px 20px; }
+          .gg-suc-title { font-size: 24px; }
+          .gg-data-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+          .gg-data-label { font-size: 11px; }
+          .gg-data-value { font-size: 14px; }
+        }
       `}</style>
       
       <div className="gg-suc-wrapper">
