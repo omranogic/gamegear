@@ -120,6 +120,7 @@ export default function LoginPage() {
                   className="gg-input-field"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  suppressHydrationWarning
                   required
                 />
                 <Mail size={18} className="gg-input-icon" />
@@ -135,6 +136,7 @@ export default function LoginPage() {
                   className="gg-input-field"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  suppressHydrationWarning
                   required
                 />
                 <Lock size={18} className="gg-input-icon" />
@@ -151,7 +153,7 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className="gg-btn-primary">
+            <button type="submit" disabled={loading} suppressHydrationWarning className="gg-btn-primary">
               {loading ? "Signing in..." : "Sign In"}
               <ArrowRight size={18} />
             </button>
