@@ -69,14 +69,21 @@ const GET_PRODUCT_DETAILS = gql`
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const client = getClient();
-  
-  const { data } = await client.query({
-    query: GET_PRODUCT_DETAILS,
-    variables: { slug },
-  });
+  let product = null;
 
-  const product = data?.product;
+  try {
+    const client = getClient();
+    
+    const { data } = await client.query({
+      query: GET_PRODUCT_DETAILS,
+      variables: { slug },
+    });
+
+    product = data?.product;
+  } catch (err) {
+    console.error("❌ GraphQL Error loading product:", slug, err);
+    // Product will be null, showing fallback
+  }
 
   // Structural arrays parsing data down into the UI template matrices
   const specs = product?.acfProductSpecs;

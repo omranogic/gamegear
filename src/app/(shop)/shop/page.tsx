@@ -31,9 +31,15 @@ const GET_SHOP_PRODUCTS = gql`
 `;
 
 export default async function Shop() {
-  const client = getClient();
-  const { data } = await client.query({ query: GET_SHOP_PRODUCTS });
-  const products = data?.products?.nodes || [];
+  let products = [];
+
+  try {
+    const client = getClient();
+    const { data } = await client.query({ query: GET_SHOP_PRODUCTS });
+    products = data?.products?.nodes || [];
+  } catch (err) {
+    console.error("❌ GraphQL Error on shop page:", err);
+  }
 
   // Products data is passed to ShopFilterComponent
 

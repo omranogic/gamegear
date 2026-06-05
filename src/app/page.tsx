@@ -66,8 +66,18 @@ const categoryIconMap: { [key: string]: string } = {
 };
 
 export default async function Home() {
-  const client = getClient();
-  const { data } = await client.query({ query: GET_HOME_DATA });
+  let data = null;
+  let error = null;
+
+  try {
+    const client = getClient();
+    const result = await client.query({ query: GET_HOME_DATA });
+    data = result.data;
+  } catch (err) {
+    console.error("❌ GraphQL Error on home page:", err);
+    error = err;
+    // Continue rendering with fallback data
+  }
 
   const acf = data?.page?.homePageSettings;
   const products = data?.products?.nodes || [];

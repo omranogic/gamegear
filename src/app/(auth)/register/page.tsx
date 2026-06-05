@@ -36,7 +36,7 @@ export default function RegisterPage() {
     try {
       // Generate a unique username for WordPress
       const wpUsername = formData.name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 1000);
-      const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "http://localhost/graphql";
+      const endpoint = "/api/proxy"; // Use local proxy to avoid CORS issues
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -59,6 +59,7 @@ export default function RegisterPage() {
             password: formData.password,
           },
         }),
+        credentials: 'include', // Include cookies for session management
       });
 
       const { data, errors } = await res.json();

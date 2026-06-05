@@ -23,9 +23,10 @@ export default function LoginPage() {
     }
 
     try {
-      // Define the target GraphQL endpoint
-      const endpoint = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "http://localhost/graphql";
+      // Use local API proxy instead of direct WordPress endpoint (avoids CORS issues)
+      const endpoint = "/api/proxy";
       
+      // Try the login mutation with email as username
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,23 +36,42 @@ export default function LoginPage() {
               login(input: { username: $username, password: $password }) {
                 authToken
                 user {
-                  name
+                  databaseId
+                  username
                   email
+                  firstName
+                  lastName
                 }
               }
             }
           `,
           variables: {
-            username: formData.email,
+            username: formData.email, // Try email as username
             password: formData.password,
           },
         }),
+        credentials: 'include', // Include cookies for session management
       });
 
-      const { data, errors } = await res.json();
+      const responseText = await res.text();
+      console.log('📤 Raw Response Text:', responseText);
+      
+      let data, errors;
+      try {
+        const parsed = JSON.parse(responseText);
+        data = parsed.data;
+        errors = parsed.errors;
+      } catch (e) {
+        console.error('❌ Failed to parse response:', e);
+      }
+
+      // Log full response for debugging
+      console.log('📊 Login Response:', { data, errors, status: res.status, responseText: responseText.substring(0, 200) });
 
       if (errors || !data?.login?.authToken) {
-        throw new Error(errors?.[0]?.message || "Invalid credentials. Please try again.");
+        const errorMsg = errors?.[0]?.message || data?.login?.message || "Invalid credentials. Please try again.";
+        console.error('❌ Login Error Details:', { errors, data, errorMsg });
+        throw new Error(errorMsg);
       }
 
       // Execute global login context push
@@ -121,6 +141,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   suppressHydrationWarning
+                  autoComplete="email"
                   required
                 />
                 <Mail size={18} className="gg-input-icon" />
@@ -137,6 +158,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   suppressHydrationWarning
+                  autoComplete="current-password"
                   required
                 />
                 <Lock size={18} className="gg-input-icon" />

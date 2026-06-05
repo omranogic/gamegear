@@ -18,7 +18,12 @@ async function forwardToWP(body: string, cookies: string, auth: string, attempt 
   try {
     jsonData = JSON.parse(text || '{}');
   } catch {
-    return { error: 'Invalid JSON from server', status: 500 };
+    console.error('❌ Backend returned non-JSON response:', {
+      status: res.status,
+      statusText: res.statusText,
+      responseStart: text.substring(0, 200),
+    });
+    return { error: `Invalid JSON from server: ${res.status} ${res.statusText}`, status: res.status };
   }
 
   // Check if we got an "Expired token" error

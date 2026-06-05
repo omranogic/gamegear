@@ -17,10 +17,15 @@ const GET_CONTACT_DATA = gql`
 `;
 
 export default async function ContactPage() {
-  const client = getClient();
-  const { data } = await client.query({ query: GET_CONTACT_DATA });
-  
-  const acf = data?.page?.contactPageSettings;
+  let acf = null;
+
+  try {
+    const client = getClient();
+    const { data } = await client.query({ query: GET_CONTACT_DATA });
+    acf = data?.page?.contactPageSettings;
+  } catch (err) {
+    console.error("❌ GraphQL Error on contact page:", err);
+  }
 
   // Enterprise Fallbacks (Standard E-commerce Format)
   const email = acf?.contactEmail || "support@gamegear.com";
